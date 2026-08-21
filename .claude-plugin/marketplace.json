@@ -1,0 +1,15 @@
+{
+  "name": "jf-tms",
+  "description": "Wtyczki do Claude'a od J&F Investing",
+  "owner": {
+    "name": "J&F Investing"
+  },
+  "plugins": [
+    {
+      "name": "tms-zadania",
+      "description": "Zakładanie zadań w firmowym TMS prosto z rozmowy z Claude'em",
+      "version": "0.1.0",
+      "source": "./"
+    }
+  ]
+}

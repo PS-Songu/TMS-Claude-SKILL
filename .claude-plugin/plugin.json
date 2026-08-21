@@ -1,0 +1,10 @@
+{
+  "name": "tms-zadania",
+  "description": "Zakładanie zadań w firmowym TMS prosto z rozmowy z Claude'em",
+  "version": "0.1.0",
+  "author": {
+    "name": "J&F Investing"
+  },
+  "repository": "https://github.com/PS-Songu/TMS-Claude-SKILL",
+  "keywords": ["tms", "zadania", "integracja"]
+}
