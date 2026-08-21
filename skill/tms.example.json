@@ -1,0 +1,6 @@
+{
+  "baseUrl": "https://tms.example.pl",
+  "apiKey": "WKLEJ-SWOJ-KLUCZ",
+  "propose": true,
+  "rules": ""
+}
