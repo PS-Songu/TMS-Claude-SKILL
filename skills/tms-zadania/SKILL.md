@@ -74,6 +74,44 @@ Przy zamkniętym trafieniu powiedz to wprost — „to samo zrobiono trzy tygodn
 temu" bywa ważniejsze niż otwarty bliźniak. Nigdy nie blokuj założenia: ostatnie
 słowo ma człowiek, czasem podobne zadanie to celowo osobna sprawa.
 
+## Formatowanie
+
+`description` zadania i materiały do weryfikacji to **tekst formatowany** — ten sam
+edytor, w którym ludzie piszą ręcznie w TMS. Wysyłaj HTML, nie goły tekst z `\n`:
+łamania linii bez znaczników zlewają się w jedną ścianę.
+
+Dozwolone znaczniki: `<p>` `<br>` `<strong>` `<em>` `<u>` `<s>` `<mark>` `<code>`
+`<pre>` `<h1>`–`<h4>` `<ul>` `<ol>` `<li>` `<a href>` `<blockquote>` `<hr>`
+`<table>` z `<tr>/<th>/<td>`. Reszta jest wycinana przy wyświetlaniu.
+
+Lista do odhaczania — dokładnie w tym kształcie, inaczej TMS nie pokaże checkboxów:
+
+```html
+<ul data-type="taskList">
+  <li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Rozdzielić pakowanie zamówień powyżej pięciu pozycji</p></div></li>
+  <li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Zrobione już wcześniej</p></div></li>
+</ul>
+```
+
+### Ile formatowania
+
+Miarą jest to, czy jest co porządkować — nie to, czy da się użyć znacznika.
+
+- Krótkie zadanie (dwa–trzy zdania) → same `<p>`. Nagłówek nad trzema zdaniami to
+  hałas, nie struktura.
+- Kilka wątków, ustalenia ze spotkania, wyliczenia → `<h3>` na sekcje i `<ul>` na
+  punkty. Typowy podział: co ustalono, co do zrobienia, czego świadomie nie robimy.
+- Punkty, które ktoś będzie odhaczał w trakcie roboty → lista zadań z checkboxami
+  zamiast `<ul>`. Wszystkie zaczynają się odznaczone (`data-checked="false"`).
+- Cytat z ustaleń albo warunek od kogoś z zewnątrz → `<blockquote>`.
+- Nazwy plików, komendy, identyfikatory → `<code>`.
+
+Nie używaj tabel do rzeczy, które są listą. Nie pogrubiaj całych zdań — `<strong>`
+jest od wyróżnienia paru słów. Nie wstawiaj `<hr>` między akapitami tej samej myśli.
+
+To samo dotyczy materiałów do weryfikacji: „Co zrobione" i „Jak sprawdzić" to
+naturalne `<h3>`, a kroki weryfikacji — `<ol>`, bo mają kolejność.
+
 ## Propozycja
 
 Po skończonej robocie: najpierw dwa–trzy zdania podsumowania prozą, potem blok:
@@ -99,6 +137,8 @@ Zasady składania:
 - Nazwa: czasownik + rzecz, do 200 znaków, bez numerów zadań i żargonu z kodu.
 - Opis: prozą, po ludzku — co jest do zrobienia i czego dotyczy. Bez nazw
   plików, funkcji i komend; to ma zrozumieć osoba, która nie siedziała w kodzie.
+  W bloku pokazujesz go zwykłym tekstem, ale do TMS wysyłasz jako HTML — patrz
+  „Formatowanie" wyżej. W bloku nie pokazujesz znaczników.
 - Priorytet: `na dziś` tylko gdy termin jest dzisiaj, `wysoki` gdy blokuje
   kogoś lub psuje robotę na produkcji, inaczej `średni`.
 - Pola, których nie da się ustalić — myślnik. Nie wymyślaj puli ani terminu.

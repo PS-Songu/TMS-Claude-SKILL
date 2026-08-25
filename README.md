@@ -63,6 +63,17 @@ którego sam nie mógłbyś zamknąć. Zatwierdzania cudzej roboty i odsyłania 
 poprawy wtyczka nie robi w ogóle — to decyzje recenzenta, podejmowane w TMS.
 
 
+
+## Formatowanie opisów
+
+Opis zadania i materiały do weryfikacji trafiają do TMS **sformatowane**, tak jak
+gdybyś pisał je ręcznie w edytorze: nagłówki sekcji, listy, pogrubienia, cytaty,
+a tam gdzie to ma sens — listy z checkboxami do odhaczania w trakcie roboty.
+
+Claude nie formatuje na siłę. Krótkie zadanie zostaje zwykłym akapitem; sekcje
+i listy pojawiają się dopiero wtedy, gdy jest co porządkować — kilka wątków,
+ustalenia ze spotkania, rzeczy do zrobienia i te świadomie zostawione na potem.
+
 ## Materiały do weryfikacji
 
 Po skończonej robocie Claude nie zostawia zadania pustego. Gdy zatwierdzisz
