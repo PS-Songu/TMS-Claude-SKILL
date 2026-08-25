@@ -7,8 +7,8 @@
   "plugins": [
     {
       "name": "tms-zadania",
-      "description": "Zakładanie zadań w firmowym TMS prosto z rozmowy z Claude'em",
-      "version": "0.1.0",
+      "description": "Zadania w firmowym TMS prosto z rozmowy z Claude'em — zakładanie i zmiana statusu",
+      "version": "0.2.0",
       "source": "./"
     }
   ]

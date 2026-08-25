@@ -1,6 +1,6 @@
 ---
 name: tms-zadania
-description: Zakładanie zadań w firmowym TMS. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie".
+description: Zadania w firmowym TMS — zakładanie i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -42,6 +42,37 @@ czego tam nie ma, tego nie proponuj. Gdy `canAssignToOthers` jest `false`,
 wykonawcą jest zawsze on sam, nawet jeśli rozmowa sugeruje kogoś innego.
 
 Nie zgaduj projektów, pul ani ludzi z pamięci ani z tego repo.
+
+## Duplikaty
+
+Zanim pokażesz propozycję, sprawdź, czy tego samego już ktoś nie zgłosił:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" \
+  --get --data-urlencode "query=filtr terminow" --data-urlencode "limit=5" \
+  "$BASE/api/v1/integrations/tasks"
+```
+
+W `query` daj dwa–trzy nośne słowa z nazwy, którą właśnie ułożyłeś — nie całe
+zdanie, bo szuka po dosłownym fragmencie tytułu i opisu. Wynik obejmuje też
+zadania zamknięte i cudze, byle mieściły się w zakresie widoczności właściciela
+klucza.
+
+Sam oceń, czy trafienie to naprawdę ta sama sprawa, czy tylko zbieżne słowa.
+Gdy to samo — zamiast zwykłego bloku pokaż ostrzeżenie i czekaj:
+
+```
+Uwaga: w TMS jest już podobne zadanie
+
+#1654  Poprawić filtr terminów na liście zadań
+       TMS · W trakcie · Jan Kowalski
+
+To samo? [pokaż mi je / zakładam mimo to / anuluj]
+```
+
+Przy zamkniętym trafieniu powiedz to wprost — „to samo zrobiono trzy tygodnie
+temu" bywa ważniejsze niż otwarty bliźniak. Nigdy nie blokuj założenia: ostatnie
+słowo ma człowiek, czasem podobne zadanie to celowo osobna sprawa.
 
 ## Propozycja
 
@@ -104,8 +135,55 @@ Kiedy coś nie wyjdzie:
 Nie ponawiaj po błędzie w kółko i nie obchodź go innym polem. Powiedz, co się
 stało, i zapytaj.
 
+## Zmiana statusu
+
+Statusy w TMS: `not_started` (Nierozpoczęty), `in_progress` (W trakcie),
+`to_verify` (Do weryfikacji), `completed` (Zakończone), `rework_needed`
+(Do poprawy).
+
+Najpierw ustal, o które zadanie chodzi. Numer podany wprost → pobierz je po
+`taskId`. Opis słowny („to o filtrach") → poszukaj przez `query` jak przy
+duplikatach. Kilka trafień — pokaż listę i zapytaj. Zero trafień — powiedz to,
+nie zgaduj.
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?taskId=1721"
+```
+
+Zadanie wraca z `status`, `canSelfComplete` i `canVerify`. Zmiana:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"status":"in_progress"}' \
+  "$BASE/api/v1/integrations/tasks/1721/status"
+```
+
+Co z czym:
+- „zaczynam", „biorę się za to" → `in_progress`. Bez pytania o zgodę — to
+  odwracalne. Powiedz jednym zdaniem, które zadanie ruszyłeś.
+- „zrobione", „skończone" → gdy `canSelfComplete` jest `true`, proponuj
+  `completed`. Gdy `false`, zadanie czeka na czyjąś weryfikację — proponuj
+  `to_verify` i powiedz dlaczego. **Czekaj na „tak"**, dopiero potem wysyłaj.
+- Zadanie w stanie `not_started` trzeba najpierw wystartować — TMS nie pozwoli
+  oddać nierozpoczętego. Zrób oba kroki po kolei i wspomnij o tym jednym zdaniem,
+  bo dla człowieka to jedna czynność.
+
+Odmowy:
+- `403 forbidden_transition` — uprawnienia nie dają tego przejścia. Najczęściej:
+  zadanie zlecił ktoś inny, więc zamyka je on, nie wykonawca. Powiedz to po
+  ludzku i zaproponuj oddanie do weryfikacji.
+- `404` — zadania nie ma albo właściciel klucza go nie widzi. Nie drąż, o które
+  chodziło; poproś o numer.
+- `409 subtasks_pending` — zostały nieskończone podzadania. `409 not_published` —
+  zadanie jeszcze nieodblokowane w serii. Powiedz, co blokuje.
+
+Nie obchodź odmowy innym statusem i nie ponawiaj jej w kółko.
+
 ## Czego nie robisz
 
-Nie zmieniasz i nie zamykasz istniejących zadań — poprawki robi się w TMS.
+Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
+recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
+Nie edytujesz treści istniejących zadań — nazwę, opis i termin poprawia się w TMS.
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie wysyłasz do TMS treści, których nie było w bloku, który człowiek zatwierdził.

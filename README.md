@@ -1,4 +1,4 @@
-# Skill do Claude — zakładanie zadań w TMS
+# Skill do Claude — zadania w TMS
 
 ## Czym to jest
 
@@ -43,6 +43,31 @@ od razu widać, że przyszły z rozmowy z Claude'em.
 
 Claude nie zgaduje projektów i osób z pamięci — listę pobiera z TMS na bieżąco,
 żeby nie rozjechała się z tym, co faktycznie jest w systemie.
+
+## Zmiana statusu
+
+Poza zakładaniem zadań Claude umie też ruszać te, które już są. Mówisz zwykłym
+językiem — „zaczynam 1721", „biorę się za to o filtrach", „oznacz jako zrobione" —
+a on znajduje zadanie, pokazuje co znalazł i zmienia status.
+
+Rozpoczęcie pracy dzieje się od razu, bo to odwracalne. Zamknięcie zadania albo
+oddanie do weryfikacji zawsze czeka na Twoje „tak".
+
+Przy „zrobione" Claude sam sprawdza, czy zadanie da się zamknąć od ręki. Jeśli
+zlecił je ktoś inny albo czeka na recenzenta, zaproponuje oddanie do weryfikacji
+zamiast zamknięcia — i powie dlaczego.
+
+Wszystko dzieje się **na Twoich uprawnieniach**: Claude może dokładnie tyle, co
+Ty w przeglądarce. Nie ruszy zadania, którego nie widzisz, i nie zamknie takiego,
+którego sam nie mógłbyś zamknąć. Zatwierdzania cudzej roboty i odsyłania jej do
+poprawy wtyczka nie robi w ogóle — to decyzje recenzenta, podejmowane w TMS.
+
+## Podobne zadania
+
+Zanim Claude pokaże propozycję nowego zadania, sprawdza w TMS, czy tego samego
+już ktoś nie zgłosił. Jeśli znajdzie coś podobnego — również zamkniętego albo
+cudzego — pokaże je i zapyta, czy to ta sama sprawa. Decyzja zawsze należy do
+Ciebie; czasem podobne zadanie to celowo osobny temat.
 
 ## Instalacja
 
