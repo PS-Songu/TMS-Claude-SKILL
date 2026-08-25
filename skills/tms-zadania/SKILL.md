@@ -1,6 +1,6 @@
 ---
 name: tms-zadania
-description: Zadania w firmowym TMS — zakładanie i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania w firmowym TMS — zakładanie, materiały do weryfikacji i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -125,6 +125,9 @@ Odpowiedź `{"data":{"taskId":123,"created":true}}`. Zgłoś numer i link
 `$BASE/tasks/123` — jednym zdaniem, żeby dało się od razu zajrzeć i poprawić
 na miejscu.
 
+Gdy zadanie powstało z roboty właśnie skończonej w tej rozmowie, nie kończysz na
+numerze — przechodzisz od razu do „Materiałów do weryfikacji" niżej.
+
 Kiedy coś nie wyjdzie:
 - `401` — klucz odwołany albo zły. Powiedz to i odeślij do Ustawień w TMS.
 - `403` — właściciel klucza nie jest członkiem tego projektu. Powiedz który
@@ -179,6 +182,62 @@ Odmowy:
   zadanie jeszcze nieodblokowane w serii. Powiedz, co blokuje.
 
 Nie obchodź odmowy innym statusem i nie ponawiaj jej w kółko.
+
+## Materiały do weryfikacji
+
+Po założeniu zadania z właśnie skończonej roboty prowadzisz ciąg dalej **bez
+pytania**: ustawiasz `in_progress`, zapisujesz materiały, i dopiero przed
+oddaniem się zatrzymujesz.
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"html":"<p><strong>Co zrobione</strong></p><p>...</p>"}' \
+  "$BASE/api/v1/integrations/tasks/1721/materials"
+```
+
+Treść to prosty HTML: `<p>`, `<strong>`, `<ul><li>`. Bez nagłówków, tabel
+i stylów. Dwie części, w tej kolejności:
+
+1. **Co zrobione** — dwa–cztery zdania prozą: co się zmieniło i dlaczego.
+2. **Jak sprawdzić** — lista kroków dla osoby weryfikującej: gdzie zajrzeć, co
+   powinna zobaczyć, czego świadomie nie ruszaliśmy. Konkretnie — „wejdź w
+   Ustawienia → Klucze i wydaj klucz, powinien pokazać się raz", nie „sprawdź
+   czy działa".
+
+Nazwy plików, funkcji i komend tylko wtedy, gdy weryfikujący bez nich nie ruszy.
+Zwykle nie ruszy bez nich w zadaniach czysto technicznych — wtedy podaj, ale
+resztę pisz po ludzku.
+
+Po zapisie pokaż krótko, co wpisałeś, i link do zadania.
+
+Osobno, na prośbę („dopisz materiały do 1654"): znajdź zadanie jak przy zmianie
+statusu i zapisz. Działa na każdym zadaniu, w którym właściciel klucza jest
+wykonawcą — także zleconym mu wcześniej przez kogoś innego.
+
+Odmowy:
+- `409 task_not_started` — zadanie jeszcze nierozpoczęte, TMS nie pokazuje wtedy
+  sekcji materiałów. Ustaw `in_progress` i powtórz.
+- `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
+- `403 forbidden` / `403 not_assignee` — właściciel klucza nie jest wykonawcą
+  tego zadania. Przy zadaniu wieloosobowym pisze się wyłącznie do własnej części.
+- `404` — zadania nie ma albo jest poza jego zasięgiem.
+
+### Oddanie po materiałach
+
+Tu się zatrzymujesz i pytasz. Podpowiedz właściwe wyjście, patrząc na
+`canSelfComplete` zadania:
+
+```
+Zadanie 1721 założone, materiały wpisane.
+https://tms.example.pl/tasks/1721
+
+Oddać? [do weryfikacji / jeszcze nie]
+```
+
+Gdy `canSelfComplete` jest `true` — zamiast „do weryfikacji" proponuj
+„zakończone", bo zadanie jest własne i nikt go nie sprawdza. `jeszcze nie` →
+zostaje `in_progress`, temat zamknięty.
 
 ## Czego nie robisz
 

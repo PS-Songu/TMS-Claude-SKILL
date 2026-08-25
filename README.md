@@ -62,6 +62,22 @@ Ty w przeglądarce. Nie ruszy zadania, którego nie widzisz, i nie zamknie takie
 którego sam nie mógłbyś zamknąć. Zatwierdzania cudzej roboty i odsyłania jej do
 poprawy wtyczka nie robi w ogóle — to decyzje recenzenta, podejmowane w TMS.
 
+
+## Materiały do weryfikacji
+
+Po skończonej robocie Claude nie zostawia zadania pustego. Gdy zatwierdzisz
+propozycję, jednym ciągiem: zakłada zadanie, ustawia je na „W trakcie" i wpisuje
+materiały do weryfikacji — co zostało zrobione, a pod tym kroki dla osoby, która
+ma to sprawdzić.
+
+Potem się zatrzymuje i pyta, czy oddać. Proponuje właściwe wyjście: „Zakończone",
+gdy zadanie jest Twoje i nikt go nie weryfikuje, „Do weryfikacji", gdy czeka na
+kogoś. Możesz też powiedzieć „jeszcze nie" i zostawić je w trakcie.
+
+Działa też osobno — „dopisz materiały do 1654" uzupełni dowolne zadanie, w którym
+jesteś wykonawcą, także takie, które ktoś zlecił Ci wcześniej. Przy zadaniach
+wieloosobowych Claude pisze wyłącznie do Twojej części.
+
 ## Podobne zadania
 
 Zanim Claude pokaże propozycję nowego zadania, sprawdza w TMS, czy tego samego
@@ -99,6 +115,24 @@ odświeżania.
 W rozmowie z Claude'em napisz `/plugin`, przejdź na zakładkę **Marketplaces**,
 wejdź w pozycję **jf-tms** (Enter na niej, nie ikonka odświeżania obok) i wybierz
 **Enable auto-update**.
+
+
+**W okienku „Manage Plugins" w edytorze tej opcji nie ma** — pozycje marketplace'ów
+są tam zwykłym tekstem, bez wejścia w szczegóły. Wtedy włącz to w pliku ustawień.
+Otwórz `%USERPROFILE%\.claude\settings.json` i przy wpisie `jf-tms` dopisz jedną
+linię:
+
+```json
+"jf-tms": {
+  "source": {
+    "source": "git",
+    "url": "https://github.com/PS-Songu/TMS-Claude-SKILL.git"
+  },
+  "autoUpdate": true
+}
+```
+
+Zadziała od następnego uruchomienia Claude'a.
 
 Od tej pory po każdym starcie rozmowy Claude sam sprawdza w tle, czy jest nowsza
 wersja. Gdy coś pobierze, dostaniesz powiadomienie z prośbą o `/reload-plugins` —

@@ -1,7 +1,7 @@
 {
   "name": "tms-zadania",
   "description": "Zadania w firmowym TMS prosto z rozmowy z Claude'em — zakładanie i zmiana statusu",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "J&F Investing"
   },
