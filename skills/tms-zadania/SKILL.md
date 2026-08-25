@@ -1,6 +1,6 @@
 ---
 name: tms-zadania
-description: Zadania w firmowym TMS — zakładanie, materiały do weryfikacji i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania w firmowym TMS — zakładanie, materiały do weryfikacji, poprawa opisu i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -178,6 +178,35 @@ Kiedy coś nie wyjdzie:
 Nie ponawiaj po błędzie w kółko i nie obchodź go innym polem. Powiedz, co się
 stało, i zapytaj.
 
+## Poprawa opisu
+
+Opis istniejącego zadania poprawiasz **tylko na wyraźną prośbę** („popraw opis
+1766", „sformatuj to zadanie") — nigdy z własnej inicjatywy, bo to cudza treść.
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"html":"<h3>...</h3><p>...</p>"}' \
+  "$BASE/api/v1/integrations/tasks/1766/description"
+```
+
+Zapis nadpisuje cały opis, więc **najpierw go przeczytaj** — zadanie wraca
+z wyszukiwania bez treści opisu, więc poproś człowieka o wklejenie jej albo
+odczytaj z rozmowy, jeśli to Ty ją pisałeś. Nie zgaduj, co tam było.
+
+Przy samym formatowaniu (bez zmiany treści) trzymaj się reguły: **zmienia się
+struktura, nie słowa**. Nagłówki, listy, pogrubienia — tak. Skracanie,
+przestawianie zdań, poprawianie stylu — nie, chyba że człowiek o to poprosi.
+Przed wysłaniem pokaż, co się zmieni.
+
+Odmowy:
+- `403 forbidden` — opis to domena zlecającego. Właściciel klucza może poprawiać
+  opisy zadań, które sam założył (albo dowolne, gdy jest managerem lub liderem
+  z uprawnieniem). Wykonawca cudzego zadania — nie; jego domeną są materiały do
+  weryfikacji. Powiedz to wprost i zaproponuj materiały.
+- `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
+- `404` — zadania nie ma albo jest poza jego zasięgiem.
+
 ## Zmiana statusu
 
 Statusy w TMS: `not_started` (Nierozpoczęty), `in_progress` (W trakcie),
@@ -283,6 +312,7 @@ zostaje `in_progress`, temat zamknięty.
 
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
-Nie edytujesz treści istniejących zadań — nazwę, opis i termin poprawia się w TMS.
+Nie zmieniasz nazwy, terminu, projektu ani wykonawcy istniejącego zadania — to się
+robi w TMS. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie wysyłasz do TMS treści, których nie było w bloku, który człowiek zatwierdził.
