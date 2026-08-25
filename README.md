@@ -87,10 +87,25 @@ W rozmowie z Claude'em, dwie komendy:
 
 Repo jest prywatne, więc GitHub musi Cię znać — trzeba mieć dostęp do
 `PS-Songu/TMS-Claude-SKILL` i zalogowane `gh` albo skonfigurowany klucz SSH.
-Po instalacji wtyczka jest widoczna w „Manage Plugins", a aktualizacje idą
-stamtąd — nie trzeba nic kopiować ręcznie.
+Po instalacji wtyczka jest widoczna w „Manage Plugins" — stamtąd idą też
+aktualizacje, nie trzeba nic kopiować ręcznie.
 
-### 3. Ustawienia
+### 3. Automatyczne aktualizacje (warto)
+
+Marketplace'y spoza Anthropic mają aktualizacje domyślnie **wyłączone**, więc bez
+tego kroku nowe wersje wtyczki trzeba za każdym razem ściągać ręcznie przyciskiem
+odświeżania.
+
+W rozmowie z Claude'em napisz `/plugin`, przejdź na zakładkę **Marketplaces**,
+wejdź w pozycję **jf-tms** (Enter na niej, nie ikonka odświeżania obok) i wybierz
+**Enable auto-update**.
+
+Od tej pory po każdym starcie rozmowy Claude sam sprawdza w tle, czy jest nowsza
+wersja. Gdy coś pobierze, dostaniesz powiadomienie z prośbą o `/reload-plugins` —
+albo nowa wersja wczyta się przy kolejnym uruchomieniu. Bieżąca rozmowa zawsze
+pracuje na tym, co miała w chwili startu, więc nic nie zmieni Ci się w trakcie.
+
+### 4. Ustawienia
 
 Klucz i reguły trzymasz u siebie, poza wtyczką. W PowerShellu:
 
@@ -117,7 +132,7 @@ zakładać zadania wyłącznie na wyraźną prośbę, a nie proponować sam z si
 **Klucz nigdy nie trafia do repo.** `tms.json` leży osobno i tylko u Ciebie —
 jest tożsamością, zadania zakładają się pod Twoim nazwiskiem.
 
-### 4. Sprawdzenie
+### 5. Sprawdzenie
 
 Nowa rozmowa, polecenie: „załóż w TMS zadanie na próbę". Powinien pokazać blok
 do zatwierdzenia, a po `tak` — numer i link.
