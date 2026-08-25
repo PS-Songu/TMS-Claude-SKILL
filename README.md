@@ -101,8 +101,9 @@ W rozmowie z Claude'em, dwie komendy:
 /plugin install tms-zadania@jf-tms
 ```
 
-Repo jest prywatne, więc GitHub musi Cię znać — trzeba mieć dostęp do
-`PS-Songu/TMS-Claude-SKILL` i zalogowane `gh` albo skonfigurowany klucz SSH.
+Repozytorium jest publiczne, więc instalacja nie wymaga żadnych uprawnień ani
+logowania do GitHuba.
+
 Po instalacji wtyczka jest widoczna w „Manage Plugins" — stamtąd idą też
 aktualizacje, nie trzeba nic kopiować ręcznie.
 
