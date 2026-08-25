@@ -50,13 +50,13 @@ Po skończonej robocie: najpierw dwa–trzy zdania podsumowania prozą, potem bl
 ```
 Zadanie do TMS
 
-Nazwa:      Poprawić rozpoznawanie kodów EAN przy przyjęciu
-Opis:       Skaner gubi ostatnią cyfrę przy kodach 13-znakowych.
-            Zmiana w module przyjęć, dotyczy wszystkich magazynierów.
-            Do sprawdzenia też przy wydaniu.
+Nazwa:      Poprawić filtr terminów na liście zadań
+Opis:       Filtr „ten tydzień" gubi zadania z soboty i niedzieli.
+            Zmiana w widoku listy, dotyczy wszystkich użytkowników.
+            Do sprawdzenia też w widoku puli.
 
 Projekt:    TMS
-Pula:       Magazyn / błędy
+Pula:       Zadania / błędy
 Wykonawca:  Jan Kowalski
 Priorytet:  wysoki
 Termin:     —
@@ -82,7 +82,7 @@ Czekasz na odpowiedź. `popraw` → nanieś zmianę i pokaż blok jeszcze raz.
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"title":"...","description":"...","priority":"high","projectName":"TMS","poolName":"Magazyn / błędy","assigneeName":"Jan Kowalski"}' \
+  -d '{"title":"...","description":"...","priority":"high","projectName":"TMS","poolName":"Zadania / błędy","assigneeName":"Jan Kowalski"}' \
   "$BASE/api/v1/integrations/inbound/claude"
 ```
 

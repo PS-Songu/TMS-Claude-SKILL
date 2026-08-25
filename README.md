@@ -20,13 +20,13 @@ która z Claude'a korzysta, a nie pod wspólnym kontem.
 ```
 Zadanie do TMS
 
-Nazwa:      Poprawić rozpoznawanie kodów EAN przy przyjęciu
-Opis:       Skaner gubi ostatnią cyfrę przy kodach 13-znakowych.
-            Zmiana w module przyjęć, dotyczy wszystkich magazynierów.
-            Do sprawdzenia też przy wydaniu.
+Nazwa:      Poprawić filtr terminów na liście zadań
+Opis:       Filtr „ten tydzień" gubi zadania z soboty i niedzieli.
+            Zmiana w widoku listy, dotyczy wszystkich użytkowników.
+            Do sprawdzenia też w widoku puli.
 
 Projekt:    TMS
-Pula:       Magazyn / błędy
+Pula:       Zadania / błędy
 Wykonawca:  Jan Kowalski
 Priorytet:  wysoki
 Termin:     —
