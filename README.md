@@ -74,6 +74,21 @@ Claude nie formatuje na siłę. Krótkie zadanie zostaje zwykłym akapitem; sekc
 i listy pojawiają się dopiero wtedy, gdy jest co porządkować — kilka wątków,
 ustalenia ze spotkania, rzeczy do zrobienia i te świadomie zostawione na potem.
 
+
+## Poprawa opisu
+
+Zadanie, które już jest w TMS, można kazać Claude'owi posprzątać — „popraw opis 1766",
+„sformatuj to zadanie". Przyda się przy starszych zadaniach, założonych zanim wtyczka
+umiała formatować.
+
+Zasada jest jedna: **zmienia się struktura, nie słowa**. Claude rozbije ścianę tekstu na
+sekcje i listy, ale nie skróci ani nie przepisze treści, chyba że wyraźnie o to poprosisz.
+Pokaże, co się zmieni, zanim wyśle.
+
+Opis zadania to domena osoby, która je zleciła — poprawisz więc zadania własne, a cudze
+tylko wtedy, gdy jesteś managerem albo liderem. Jeśli jesteś w zadaniu wykonawcą, Twoim
+miejscem są materiały do weryfikacji, nie opis.
+
 ## Materiały do weryfikacji
 
 Po skończonej robocie Claude nie zostawia zadania pustego. Gdy zatwierdzisz
