@@ -25,9 +25,9 @@ Opis:       Skaner gubi ostatnią cyfrę przy kodach 13-znakowych.
             Zmiana w module przyjęć, dotyczy wszystkich magazynierów.
             Do sprawdzenia też przy wydaniu.
 
-Projekt:    WMS
+Projekt:    TMS
 Pula:       Magazyn / błędy
-Wykonawca:  Wojtek Kulus
+Wykonawca:  Jan Kowalski
 Priorytet:  wysoki
 Termin:     —
 

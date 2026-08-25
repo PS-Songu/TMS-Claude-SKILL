@@ -17,7 +17,7 @@ Wszystko siedzi w `~/.claude/tms.json` (poza tym repo, klucz nigdy do gita):
   "baseUrl": "https://tms.example.pl",
   "apiKey": "tms_...",
   "propose": true,
-  "rules": "Domyślny projekt: WMS. Zadania dla siebie chyba że mówię inaczej."
+  "rules": "Domyślny projekt: TMS. Zadania dla siebie chyba że mówię inaczej."
 }
 ```
 
@@ -55,9 +55,9 @@ Opis:       Skaner gubi ostatnią cyfrę przy kodach 13-znakowych.
             Zmiana w module przyjęć, dotyczy wszystkich magazynierów.
             Do sprawdzenia też przy wydaniu.
 
-Projekt:    WMS
+Projekt:    TMS
 Pula:       Magazyn / błędy
-Wykonawca:  Wojtek Kulus
+Wykonawca:  Jan Kowalski
 Priorytet:  wysoki
 Termin:     —
 
@@ -82,7 +82,7 @@ Czekasz na odpowiedź. `popraw` → nanieś zmianę i pokaż blok jeszcze raz.
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"title":"...","description":"...","priority":"high","projectName":"WMS","poolName":"Magazyn / błędy","assigneeName":"Wojtek Kulus"}' \
+  -d '{"title":"...","description":"...","priority":"high","projectName":"TMS","poolName":"Magazyn / błędy","assigneeName":"Jan Kowalski"}' \
   "$BASE/api/v1/integrations/inbound/claude"
 ```
 
