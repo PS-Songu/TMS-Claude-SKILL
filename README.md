@@ -97,7 +97,7 @@ od razu. Zgubiony odwołujesz i wydajesz nowy, w tym samym miejscu.
 W rozmowie z Claude'em, dwie komendy:
 
 ```
-/plugin marketplace add PS-Songu/TMS-Claude-SKILL
+/plugin marketplace add jf-investing/TMS-Claude-SKILL
 /plugin install tms-zadania@jf-tms
 ```
 
@@ -127,7 +127,7 @@ linię:
 "jf-tms": {
   "source": {
     "source": "git",
-    "url": "https://github.com/PS-Songu/TMS-Claude-SKILL.git"
+    "url": "https://github.com/jf-investing/TMS-Claude-SKILL.git"
   },
   "autoUpdate": true
 }
