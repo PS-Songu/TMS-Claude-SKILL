@@ -243,6 +243,39 @@ Nowa rozmowa, polecenie `/tms:ustawienia` — powinno pokazać komplet ustawień
 bez ostrzeżeń. Potem „załóż w TMS zadanie na próbę": powinien pokazać blok
 do zatwierdzenia, a po `tak` — numer i link.
 
+## Która wersja jest wczytana
+
+Wpisz `/tms:ustawienia` — pierwsza linijka pokaże numer wersji i od razu powie, czy
+w repozytorium jest już nowsza.
+
+Numer bierze się z samej wczytanej instrukcji, więc nie da się go pomylić: jeśli
+widnieje stary, to znaczy, że stara instrukcja jest aktywna — nawet gdy okno wtyczek
+pokazuje już nowszą. Wtedy odśwież źródło w zarządzaniu wtyczkami, **zamknij i otwórz
+edytor**, i zacznij nową rozmowę.
+
+Warto mieć włączone automatyczne aktualizacje — bez nich kopia repozytorium nigdy nie
+zaciągnie się sama. Ustawienie jest osobne u każdego, w jego pliku `~/.claude/settings.json`:
+
+```json
+"extraKnownMarketplaces": {
+  "jf-tms": {
+    "source": { "source": "git", "url": "https://github.com/jf-investing/TMS-Claude-SKILL.git" },
+    "autoUpdate": true
+  }
+}
+```
+
+## Wydawanie nowej wersji
+
+Numer wersji siedzi w czterech miejscach — podbij wszystkie naraz:
+
+1. `.claude-plugin/plugin.json`
+2. `.claude-plugin/marketplace.json`
+3. `skills/ustawienia/SKILL.md` — sekcja „Wersja" i przykładowy blok pod nią
+4. wydanie na GitHubie (`gh release create vX.Y.Z`)
+
+Punkt 3 jest tym, co widzi użytkownik, więc rozjazd z resztą wprowadza w błąd.
+
 ## Więcej
 
 Szczegóły ustaleń: [docs/2026-08-19-spec.md](docs/2026-08-19-spec.md)
