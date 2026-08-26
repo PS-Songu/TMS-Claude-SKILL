@@ -123,6 +123,19 @@ a po Twoim „tak" utworzy go i dopiero w nim założy zadanie.
 Właścicielem zostajesz Ty. Jeśli Twoja rola nie pozwala zakładać projektów, Claude
 powie to od razu, zamiast próbować.
 
+## Podzadania
+
+Claude widzi checklistę w zadaniu i potrafi ją prowadzić. Przy zakładaniu zadania,
+które rozkłada się na kilka wyraźnych kroków, wpisze je jako punkty do odhaczenia
+zamiast wyliczenia w opisie — dzięki temu postęp widać na liście zadań.
+
+Potem wystarczy powiedzieć „odhacz drugi punkt" albo zapytać „co jeszcze zostało
+w 1766". Gdy przy oddawaniu zadania okaże się, że któryś punkt wisi nieodhaczony,
+Claude pokaże które i zapyta — sam ich nie odhacza, żeby oddać zadanie.
+
+Punkt, do którego przypięto inne zadanie, zostaje nietknięty — odhacza się sam,
+gdy tamto zadanie zostanie zamknięte.
+
 ## Podobne zadania
 
 Zanim Claude pokaże propozycję nowego zadania, sprawdza w TMS, czy tego samego
