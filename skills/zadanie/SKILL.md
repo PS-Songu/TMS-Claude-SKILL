@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -243,6 +243,10 @@ na miejscu.
 Gdy zadanie powstało z roboty właśnie skończonej w tej rozmowie, nie kończysz na
 numerze — przechodzisz od razu do „Materiałów do weryfikacji" niżej.
 
+Gdy zadanie rozkłada się na kilka wyraźnych kroków, dopisz je jako punkty
+checklisty (patrz „Podzadania") zamiast wyliczać w opisie — postęp widać wtedy
+na liście zadań.
+
 Kiedy coś nie wyjdzie:
 - `401` — klucz odwołany albo zły. Powiedz to i odeślij do Ustawień w TMS.
 - `403` — właściciel klucza nie jest członkiem tego projektu. Powiedz który
@@ -322,10 +326,64 @@ Odmowy:
   ludzku i zaproponuj oddanie do weryfikacji.
 - `404` — zadania nie ma albo właściciel klucza go nie widzi. Nie drąż, o które
   chodziło; poproś o numer.
-- `409 subtasks_pending` — zostały nieskończone podzadania. `409 not_published` —
-  zadanie jeszcze nieodblokowane w serii. Powiedz, co blokuje.
+- `409 subtasks_pending` — zostały nieodhaczone punkty checklisty. Pokaż je
+  (patrz „Podzadania") i zapytaj, czy odhaczyć. `409 not_published` — zadanie
+  jeszcze nieodblokowane w serii. Powiedz, co blokuje.
 
 Nie obchodź odmowy innym statusem i nie ponawiaj jej w kółko.
+
+## Podzadania
+
+Checklista wewnątrz zadania: krótkie punkty do odhaczenia. To nie są osobne
+zadania — nie mają wykonawcy, statusu ani terminu, więc nie znajdziesz ich
+wyszukiwaniem. Zawsze idziesz przez numer zadania.
+
+Podgląd:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/subtasks"
+```
+
+Wraca lista `{id, text, description, done, blocked}`.
+
+Dopisanie punktów — całą listą naraz, nie po jednym:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"items":[{"text":"Pierwszy punkt"},{"text":"Drugi punkt"}]}' \
+  "$BASE/api/v1/integrations/tasks/1721/subtasks"
+```
+
+Odhaczenie (`done: false` odznacza z powrotem):
+
+```bash
+curl -s -w '\n%{http_code}' -X PATCH \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"done":true}' \
+  "$BASE/api/v1/integrations/tasks/1721/subtasks/45"
+```
+
+Kiedy z tego korzystasz:
+- **Zadanie z kilku wyraźnych kroków** — przy zakładaniu wpisz je jako punkty
+  checklisty zamiast wyliczenia w opisie. Wtedy widać postęp na liście zadań.
+  Opis zostaje na „po co i dlaczego", punkty niosą „co po kolei".
+- **Odmowa `subtasks_pending`** — pobierz listę, pokaż nieodhaczone i zapytaj,
+  czy odhaczyć. Nie odhaczaj sam pod pretekstem oddania zadania.
+- **Człowiek mówi wprost** („odhacz drugi punkt", „co jeszcze zostało w 1766").
+
+Punkt z `blocked: true` ma przypięte cudze zadanie — odhaczy się sam, gdy tamto
+zostanie zamknięte. Ręcznie się nie da (`409 subtask_blocked`); powiedz, na co
+czeka, zamiast próbować.
+
+Odmowy:
+- `404` — zadania nie ma, jest poza zasięgiem właściciela klucza, albo punkt nie
+  należy do tego zadania.
+- `403 forbidden` — zadanie widoczne, ale checklisty w nim nie ruszysz. Punkty
+  dopisuje i odhacza twórca zadania, wykonawca, właściciel lub manager projektu.
+- `409 project_done` / `409 task_archived` — zadanie tylko do odczytu.
+- `409 limit_exceeded` — limit punktów na zadanie. Zaproponuj rozbicie na osobne
+  zadania.
 
 ## Materiały do weryfikacji
 
