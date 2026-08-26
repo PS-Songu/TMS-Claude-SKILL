@@ -1,5 +1,5 @@
 ---
-name: tms-zadania
+name: zadanie
 description: Zadania w firmowym TMS — zakładanie, materiały do weryfikacji, poprawa opisu i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
@@ -10,46 +10,33 @@ Zadanie idzie na produkcję pod nazwiskiem właściciela klucza.
 
 ## Ustawienia
 
-Konfiguracja jest w dwóch miejscach: **klucz w pliku**, **reszta w okienku wtyczki**.
-
-### Klucz
-
-Zawsze z `~/.claude/tms.json`, nigdy z okienka i nigdy z tego repo:
+Wszystko siedzi w `~/.claude/tms.json` — poza tym repo, klucz nigdy do gita:
 
 ```json
-{ "apiKey": "tms_..." }
+{
+  "baseUrl": "https://tms.example.pl",
+  "apiKey": "tms_...",
+  "propose": true,
+  "rules": "Domyślny projekt: TMS. Zadania dla siebie chyba że mówię inaczej.",
+  "style": "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
+}
 ```
 
-Czytaj przez `cat ~/.claude/tms.json`. Brak pliku albo brak `apiKey` → powiedz, że
-klucz nie jest ustawiony, i odeślij do README. **Nie pytaj o klucz w rozmowie
-i nigdy go nie wypisuj.**
+Czytaj przez `cat ~/.claude/tms.json`. Plik bywa zapisany ze znacznikiem BOM na
+początku — pomiń go, to nie błąd. Brak pliku albo brak `apiKey` → powiedz, że skill
+nie jest skonfigurowany, i odeślij do `/tms:ustawienia`. **Nie pytaj o klucz
+w rozmowie i nigdy go nie wypisuj.**
 
-Klucz siedzi w pliku celowo: wartości z okienka są wstawiane w treść tej instrukcji,
-czyli przewijałyby się przez każdą rozmowę.
+`propose: false` → nie proponuj z własnej inicjatywy, zakładaj tylko na wyraźną
+prośbę. `rules` to prywatne ustalenia tej osoby — trzymaj się ich, chyba że
+w rozmowie padło co innego. `style` dotyczy brzmienia: długości opisu, tonu, tego
+czy używać wyliczeń. Reguły mówią CO wpisać, styl JAK to napisać.
 
-### Reszta
+Ustawienia pokazuje i objaśnia `/tms:ustawienia`. Plik ma komentarze `//` — pomiń
+je przy czytaniu i NIE kasuj ich, gdyby przyszło Ci coś w nim zmieniać.
 
-Wartości ustawione w okienku wtyczki:
-
-- Adres TMS: `${user_config.adres_tms}`
-- Reguły doboru pól: `${user_config.reguly}`
-- Styl pisania: `${user_config.styl}`
-- Proponuj zadania sam: `${user_config.proponuj}`
-
-**Gdy w miejscu wartości widzisz surowy zapis `${user_config....}` albo pustkę** —
-konfiguracja z okienka jest nieustawiona lub nieobsługiwana. Wtedy czytaj wszystko
-ze starego pliku: `baseUrl`, `rules`, `propose` z `~/.claude/tms.json`. Plik ma
-pierwszeństwo dla klucza, okienko dla reszty; nikomu nic nie przestaje działać.
-
-Brak adresu w obu miejscach → powiedz, że skill nie jest skonfigurowany, i odeślij
-do README. Nie zgaduj adresu.
-
-`Proponuj zadania sam` wyłączone (`false`) → nie proponuj z własnej inicjatywy,
-zakładaj tylko na wyraźną prośbę.
-
-`Reguły` to prywatne ustalenia tej osoby — trzymaj się ich, chyba że w rozmowie
-padło co innego. `Styl` dotyczy brzmienia: długości opisu, tonu, tego czy używać
-wyliczeń. Reguły mówią CO wpisać, styl JAK to napisać.
+W przykładach niżej `$KLUCZ` to `apiKey`, a `$BASE` to `baseUrl`. Podstaw je sam
+przy wywołaniu.
 
 W przykładach niżej `$KLUCZ` to klucz z pliku, a `$BASE` — adres TMS z okienka
 (albo z pliku, gdy okienko puste). Podstaw je sam przy wywołaniu.

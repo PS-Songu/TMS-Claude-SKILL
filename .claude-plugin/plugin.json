@@ -1,7 +1,7 @@
 {
-  "name": "tms-zadania",
-  "description": "Zadania w firmowym TMS prosto z rozmowy z Claude'em — zakładanie i zmiana statusu",
-  "version": "0.6.0",
+  "name": "tms",
+  "description": "Zadania w firmowym TMS prosto z rozmowy z Claude'em — zakładanie, materiały, statusy",
+  "version": "0.7.0",
   "author": {
     "name": "J&F Investing"
   },
@@ -10,29 +10,5 @@
     "tms",
     "zadania",
     "integracja"
-  ],
-  "userConfig": {
-    "adres_tms": {
-      "type": "string",
-      "title": "Adres TMS",
-      "description": "Adres firmowego TMS, np. https://tms.example.pl — bez ukośnika na końcu.",
-      "required": true
-    },
-    "reguly": {
-      "type": "string",
-      "title": "Reguły doboru pól",
-      "description": "Prozą: domyślny projekt, kogo ustawiać wykonawcą, czego nie proponować. Można zostawić puste."
-    },
-    "styl": {
-      "type": "string",
-      "title": "Styl pisania",
-      "description": "Jak mają brzmieć zadania, np. „krótko, bez ozdobników, opis maksymalnie trzy zdania”. Można zostawić puste."
-    },
-    "proponuj": {
-      "type": "boolean",
-      "title": "Proponuj zadania sam",
-      "description": "Włączone — po skończonej robocie Claude sam proponuje zadanie. Wyłączone — tylko na wyraźną prośbę.",
-      "default": true
-    }
-  }
+  ]
 }

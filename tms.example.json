@@ -1,0 +1,26 @@
+{
+  // Adres firmowego TMS, bez ukośnika na końcu.
+  // Weź go z paska przeglądarki, np. "https://tms.firma.pl".
+  "baseUrl": "",
+
+  // Klucz osobisty. W TMS: Ustawienia → Klucze → „Wydaj klucz".
+  // Pokazuje się jeden raz. To Twoja tożsamość — zadania zakładają się
+  // pod Twoim nazwiskiem. Nie wysyłaj go nikomu.
+  "apiKey": "",
+
+  // true  — po skończonej robocie Claude sam proponuje zadanie do TMS
+  // false — zakłada tylko wtedy, gdy wyraźnie poprosisz
+  "propose": true,
+
+  // CO wpisywać w zadaniach. Prozą, własnymi słowami. Przykłady:
+  //   "Domyślny projekt: WMS. Zadania dla siebie chyba że mówię inaczej."
+  //   "Robota w kodzie idzie do puli Fixy. Bez terminu = średni priorytet."
+  //   "Nie proponuj zadań z rozmów, w których tylko planujemy."
+  "rules": "",
+
+  // JAK mają brzmieć. Dotyczy stylu, nie treści. Przykłady:
+  //   "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
+  //   "Opis pełnymi zdaniami, bez wyliczeń."
+  //   "Nazwy zadań zaczynaj od czasownika."
+  "style": ""
+}
