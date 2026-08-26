@@ -168,7 +168,9 @@ pracuje na tym, co miała w chwili startu, więc nic nie zmieni Ci się w trakci
 
 ### 4. Ustawienia
 
-Klucz i reguły trzymasz u siebie, poza wtyczką. W PowerShellu:
+Dwa miejsca: **klucz w pliku**, **reszta w okienku wtyczki**.
+
+**Klucz.** W PowerShellu:
 
 ```powershell
 notepad "$env:USERPROFILE\.claude\tms.json"
@@ -178,20 +180,28 @@ Notatnik zapyta, czy utworzyć plik — tak. Wklej i uzupełnij:
 
 ```json
 {
-  "baseUrl": "https://adres-twojego-tms",
-  "apiKey": "WKLEJ-SWOJ-KLUCZ",
-  "propose": true,
-  "rules": ""
+  "apiKey": "WKLEJ-SWOJ-KLUCZ"
 }
 ```
 
-Adres TMS-a weź z paska przeglądarki, bez ukośnika na końcu. `rules` to Twoje
-prywatne reguły, prozą: domyślny projekt, kogo zwykle ustawiać wykonawcą, czego
-nie proponować. Można zostawić puste. `propose` na `false`, jeśli Claude ma
-zakładać zadania wyłącznie na wyraźną prośbę, a nie proponować sam z siebie.
+**Klucz nigdy nie trafia do repo ani do okienka.** Leży osobno i tylko u Ciebie —
+jest Twoją tożsamością, zadania zakładają się pod Twoim nazwiskiem. W okienku go
+nie ma celowo: tamte wartości są wstawiane w treść instrukcji, czyli przewijałyby
+się przez każdą rozmowę.
 
-**Klucz nigdy nie trafia do repo.** `tms.json` leży osobno i tylko u Ciebie —
-jest tożsamością, zadania zakładają się pod Twoim nazwiskiem.
+**Reszta.** Napisz `/plugin`, wejdź w **tms-zadania** i uzupełnij cztery pola:
+
+| Pole | Po co |
+|---|---|
+| Adres TMS | Z paska przeglądarki, bez ukośnika na końcu |
+| Reguły doboru pól | Domyślny projekt, kogo ustawiać wykonawcą, czego nie proponować |
+| Styl pisania | Jak mają brzmieć zadania — długość opisu, ton, czy używać wyliczeń |
+| Proponuj zadania sam | Wyłącz, jeśli Claude ma zakładać zadania tylko na wyraźną prośbę |
+
+Reguły mówią **co** wpisać, styl **jak** to napisać. Oba można zostawić puste.
+
+Masz starszy `tms.json` z adresem i regułami w środku? Nic nie musisz zmieniać —
+wtyczka czyta go dalej, gdy okienko jest puste.
 
 ### 5. Sprawdzenie
 

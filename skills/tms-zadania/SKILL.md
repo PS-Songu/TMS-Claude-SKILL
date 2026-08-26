@@ -10,23 +10,49 @@ Zadanie idzie na produkcję pod nazwiskiem właściciela klucza.
 
 ## Ustawienia
 
-Wszystko siedzi w `~/.claude/tms.json` (poza tym repo, klucz nigdy do gita):
+Konfiguracja jest w dwóch miejscach: **klucz w pliku**, **reszta w okienku wtyczki**.
+
+### Klucz
+
+Zawsze z `~/.claude/tms.json`, nigdy z okienka i nigdy z tego repo:
 
 ```json
-{
-  "baseUrl": "https://tms.example.pl",
-  "apiKey": "tms_...",
-  "propose": true,
-  "rules": "Domyślny projekt: TMS. Zadania dla siebie chyba że mówię inaczej."
-}
+{ "apiKey": "tms_..." }
 ```
 
-Czytaj go przez `cat ~/.claude/tms.json`. Nie ma pliku → powiedz, że skill nie
-jest skonfigurowany, i odeślij do README repo. Nie pytaj o klucz w rozmowie.
+Czytaj przez `cat ~/.claude/tms.json`. Brak pliku albo brak `apiKey` → powiedz, że
+klucz nie jest ustawiony, i odeślij do README. **Nie pytaj o klucz w rozmowie
+i nigdy go nie wypisuj.**
 
-`propose: false` → nie proponuj sam z siebie, zakładaj tylko na wyraźną prośbę.
-`rules` to prywatne reguły tej osoby — trzymaj się ich, chyba że w rozmowie padło
-co innego.
+Klucz siedzi w pliku celowo: wartości z okienka są wstawiane w treść tej instrukcji,
+czyli przewijałyby się przez każdą rozmowę.
+
+### Reszta
+
+Wartości ustawione w okienku wtyczki:
+
+- Adres TMS: `${user_config.adres_tms}`
+- Reguły doboru pól: `${user_config.reguly}`
+- Styl pisania: `${user_config.styl}`
+- Proponuj zadania sam: `${user_config.proponuj}`
+
+**Gdy w miejscu wartości widzisz surowy zapis `${user_config....}` albo pustkę** —
+konfiguracja z okienka jest nieustawiona lub nieobsługiwana. Wtedy czytaj wszystko
+ze starego pliku: `baseUrl`, `rules`, `propose` z `~/.claude/tms.json`. Plik ma
+pierwszeństwo dla klucza, okienko dla reszty; nikomu nic nie przestaje działać.
+
+Brak adresu w obu miejscach → powiedz, że skill nie jest skonfigurowany, i odeślij
+do README. Nie zgaduj adresu.
+
+`Proponuj zadania sam` wyłączone (`false`) → nie proponuj z własnej inicjatywy,
+zakładaj tylko na wyraźną prośbę.
+
+`Reguły` to prywatne ustalenia tej osoby — trzymaj się ich, chyba że w rozmowie
+padło co innego. `Styl` dotyczy brzmienia: długości opisu, tonu, tego czy używać
+wyliczeń. Reguły mówią CO wpisać, styl JAK to napisać.
+
+W przykładach niżej `$KLUCZ` to klucz z pliku, a `$BASE` — adres TMS z okienka
+(albo z pliku, gdy okienko puste). Podstaw je sam przy wywołaniu.
 
 ## Słownik
 
