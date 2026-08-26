@@ -124,7 +124,7 @@ W rozmowie z Claude'em, dwie komendy:
 
 ```
 /plugin marketplace add jf-investing/TMS-Claude-SKILL
-/plugin install tms-zadania@jf-tms
+/plugin install tms@jf-tms
 ```
 
 Repozytorium jest publiczne, więc instalacja nie wymaga żadnych uprawnień ani
@@ -168,44 +168,47 @@ pracuje na tym, co miała w chwili startu, więc nic nie zmieni Ci się w trakci
 
 ### 4. Ustawienia
 
-Dwa miejsca: **klucz w pliku**, **reszta w okienku wtyczki**.
+Wszystko siedzi w jednym pliku: `%USERPROFILE%\.claude\tms.json` (na Macu i Linuksie
+`~/.claude/tms.json`). Nie ma go jeszcze? Napisz w rozmowie:
 
-**Klucz.** W PowerShellu:
-
-```powershell
-notepad "$env:USERPROFILE\.claude\tms.json"
+```
+/tms:ustawienia
 ```
 
-Notatnik zapyta, czy utworzyć plik — tak. Wklej i uzupełnij:
+Claude utworzy plik z opisami wszystkich pól i przeprowadzi przez uzupełnienie.
+Ta sama komenda pokazuje później, co masz ustawione i gdzie plik leży.
+
+Plik wygląda tak — każde pole ma nad sobą wyjaśnienie i przykłady:
 
 ```json
 {
-  "apiKey": "WKLEJ-SWOJ-KLUCZ"
+  // Adres firmowego TMS, bez ukośnika na końcu.
+  "baseUrl": "https://tms.firma.pl",
+
+  // Klucz osobisty z TMS: Ustawienia → Klucze → „Wydaj klucz".
+  "apiKey": "tms_...",
+
+  // true — Claude sam proponuje zadanie po skończonej robocie
+  "propose": true,
+
+  // CO wpisywać: domyślny projekt, kogo ustawiać wykonawcą, czego nie proponować
+  "rules": "Domyślny projekt: WMS. Zadania dla siebie chyba że mówię inaczej.",
+
+  // JAK to ma brzmieć: długość opisu, ton, czy używać wyliczeń
+  "style": "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
 }
 ```
 
-**Klucz nigdy nie trafia do repo ani do okienka.** Leży osobno i tylko u Ciebie —
-jest Twoją tożsamością, zadania zakładają się pod Twoim nazwiskiem. W okienku go
-nie ma celowo: tamte wartości są wstawiane w treść instrukcji, czyli przewijałyby
-się przez każdą rozmowę.
+`rules` mówi **co** wpisać, `style` **jak** to napisać. Oba można zostawić puste.
 
-**Reszta.** Napisz `/plugin`, wejdź w **tms-zadania** i uzupełnij cztery pola:
-
-| Pole | Po co |
-|---|---|
-| Adres TMS | Z paska przeglądarki, bez ukośnika na końcu |
-| Reguły doboru pól | Domyślny projekt, kogo ustawiać wykonawcą, czego nie proponować |
-| Styl pisania | Jak mają brzmieć zadania — długość opisu, ton, czy używać wyliczeń |
-| Proponuj zadania sam | Wyłącz, jeśli Claude ma zakładać zadania tylko na wyraźną prośbę |
-
-Reguły mówią **co** wpisać, styl **jak** to napisać. Oba można zostawić puste.
-
-Masz starszy `tms.json` z adresem i regułami w środku? Nic nie musisz zmieniać —
-wtyczka czyta go dalej, gdy okienko jest puste.
+**Klucz nigdy nie trafia do repo.** Leży tylko u Ciebie i jest Twoją tożsamością —
+zadania zakładają się pod Twoim nazwiskiem. Wtyczka nie wypisuje go w rozmowie,
+pokazuje najwyżej cztery ostatnie znaki.
 
 ### 5. Sprawdzenie
 
-Nowa rozmowa, polecenie: „załóż w TMS zadanie na próbę". Powinien pokazać blok
+Nowa rozmowa, polecenie `/tms:ustawienia` — powinno pokazać komplet ustawień
+bez ostrzeżeń. Potem „załóż w TMS zadanie na próbę": powinien pokazać blok
 do zatwierdzenia, a po `tak` — numer i link.
 
 ## Więcej
