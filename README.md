@@ -104,6 +104,25 @@ Działa też osobno — „dopisz materiały do 1654" uzupełni dowolne zadanie,
 jesteś wykonawcą, także takie, które ktoś zlecił Ci wcześniej. Przy zadaniach
 wieloosobowych Claude pisze wyłącznie do Twojej części.
 
+
+## Uprawnienia
+
+Claude pyta TMS o Twoje uprawnienia, **zanim** cokolwiek zaproponuje. Jeśli poprosisz
+o zadanie w projekcie, do którego nie masz dostępu, powie to od razu — zamiast układać
+propozycję, wysyłać ją i pokazywać Ci odmowę serwera.
+
+Widzisz dokładnie tyle, co w przeglądarce: projekty, w których jesteś, ludzi, których
+możesz ustawić wykonawcą, i akcje, na które pozwala Twoja rola.
+
+## Zakładanie projektów
+
+Gdy zadanie nie pasuje do niczego, co już jest, możesz kazać Claude'owi założyć nowy
+projekt — „załóż projekt Automatyzacja raportów". Pokaże nazwę i opis do zatwierdzenia,
+a po Twoim „tak" utworzy go i dopiero w nim założy zadanie.
+
+Właścicielem zostajesz Ty. Jeśli Twoja rola nie pozwala zakładać projektów, Claude
+powie to od razu, zamiast próbować.
+
 ## Podobne zadania
 
 Zanim Claude pokaże propozycję nowego zadania, sprawdza w TMS, czy tego samego
