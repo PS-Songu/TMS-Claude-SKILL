@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania w firmowym TMS — zakładanie, materiały do weryfikacji, poprawa opisu i zmiana statusu. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -41,20 +41,82 @@ przy wywołaniu.
 W przykładach niżej `$KLUCZ` to klucz z pliku, a `$BASE` — adres TMS z okienka
 (albo z pliku, gdy okienko puste). Podstaw je sam przy wywołaniu.
 
-## Słownik
+## Słownik — ZAWSZE PIERWSZY
 
-Zanim zaproponujesz zadanie, raz na rozmowę pobierz co wolno wpisać:
+**Zanim cokolwiek zaproponujesz i zanim cokolwiek wyślesz, pobierz słownik.**
+Raz na rozmowę, ale przed pierwszą propozycją — bez wyjątków.
 
 ```bash
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/dictionary"
 ```
 
 Zwraca `projects`, `pools` (z `projectId`), `users`, `priorities` oraz `me`
-z `canAssignToOthers`. Lista jest przycięta do uprawnień właściciela klucza —
-czego tam nie ma, tego nie proponuj. Gdy `canAssignToOthers` jest `false`,
-wykonawcą jest zawsze on sam, nawet jeśli rozmowa sugeruje kogoś innego.
+z `canAssignToOthers` i `canCreateProject`. Wszystko przycięte do uprawnień
+właściciela klucza — **czego tam nie ma, tego on nie może**.
 
-Nie zgaduj projektów, pul ani ludzi z pamięci ani z tego repo.
+### Sprawdzenie uprawnień przed działaniem
+
+Człowiek prosi o zadanie w konkretnym projekcie, a tego projektu **nie ma na
+liście**? Powiedz mu to od razu, zanim ułożysz propozycję:
+
+```
+W TMS nie masz dostępu do projektu WMS — nie założysz tam zadania.
+
+Możesz: poprosić kogoś o dodanie Cię do projektu, wybrać inny
+(TMS ✅, OMS 🚚, …) albo założyć zadanie bez projektu.
+```
+
+Nie próbuj „na wszelki wypadek" — odmowa z serwera po pokazaniu gotowej
+propozycji wygląda, jakby coś się zepsuło, a to zwykły brak uprawnień.
+
+To samo dotyczy reszty:
+- `canAssignToOthers` na `false` → wykonawcą jest wyłącznie właściciel klucza,
+  nawet jeśli rozmowa sugeruje kogoś innego. Powiedz o tym, nie zgaduj.
+- `canCreateProject` na `false` → nie proponuj zakładania projektu.
+- Puli nie ma na liście dla tego projektu → nie wpisuj jej.
+
+Nie zgaduj projektów, pul ani ludzi z pamięci, z rozmowy ani z tego repo. Jedynym
+źródłem prawdy jest słownik pobrany TERAZ.
+
+## Zakładanie projektu
+
+Gdy zadanie nie pasuje do żadnego istniejącego projektu, a `canCreateProject`
+w słowniku jest `true`, możesz zaproponować nowy. **Tylko na wyraźną prośbę albo
+gdy człowiek sam powie, że projektu brakuje** — nie zakładaj projektu przy okazji
+zakładania zadania.
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"name":"Nazwa projektu","description":"<p>Po co ten projekt.</p>"}' \
+  "$BASE/api/v1/integrations/projects"
+```
+
+Pola: `name` (min. 3 znaki, musi być unikalna), `description` (HTML jak w opisach
+zadań), `status` — `planned` (domyślny), `active`, `on_hold`, `done`.
+
+Zanim wyślesz, pokaż do zatwierdzenia:
+
+```
+Nowy projekt w TMS
+
+Nazwa: Automatyzacja raportów magazynowych
+Opis:  Zbiera w jednym miejscu robotę wokół raportów z WMS.
+       Na razie dwa zadania, ale będzie ich więcej.
+
+Zakładam? [tak / popraw / anuluj]
+```
+
+Właścicielem zostaje właściciel klucza. Odpowiedź niesie `id` i `name` — powiedz,
+że projekt powstał, i **dopiero teraz** zakładaj w nim zadanie. Świeży projekt nie
+ma pul, więc pola „Pula" nie wypełniaj.
+
+Odmowy:
+- `403 forbidden` — właściciel klucza nie może zakładać projektów. Sprawdź to
+  wcześniej w słowniku, żeby nie dopytywać po fakcie.
+- `409 name_taken` — projekt o tej nazwie już istnieje. Pokaż go i zapytaj, czy
+  o niego chodziło.
+- `400` — nazwa krótsza niż trzy znaki.
 
 ## Duplikaty
 
