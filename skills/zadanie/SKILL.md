@@ -41,6 +41,26 @@ przy wywołaniu.
 W przykładach niżej `$KLUCZ` to klucz z pliku, a `$BASE` — adres TMS z okienka
 (albo z pliku, gdy okienko puste). Podstaw je sam przy wywołaniu.
 
+## Numer zadania ZAWSZE z linkiem
+
+**Ilekroć wymieniasz zadanie, dawaj link** — założone, ruszone, oddane, zablokowane,
+znalezione przy wyszukiwaniu, wymienione mimochodem w podsumowaniu roboty. Bez wyjątku
+i bez czekania, aż ktoś poprosi.
+
+Adres składasz z `baseUrl`: `$BASE/tasks/<numer>`.
+
+```
+Zadanie #1814 czeka na Wojtka jako „Do weryfikacji"
+https://tms.example.pl/tasks/1814
+```
+
+Sam numer zmusza człowieka do szukania zadania po numerku — a to jest dokładnie ta
+robota, której wtyczka ma go oszczędzić. Przy liście kilku zadań link dawaj przy każdym
+(w wierszu albo pod nim), nie tylko przy pierwszym.
+
+Wyjątek jest jeden: gdy w tej samej odpowiedzi ten sam link już padł — nie powtarzaj go
+przy każdej wzmiance.
+
 ## Słownik — ZAWSZE PIERWSZY
 
 **Zanim cokolwiek zaproponujesz i zanim cokolwiek wyślesz, pobierz słownik.**
@@ -313,6 +333,9 @@ W trakcie    2   #61 śledzenie przesyłek (Piotr), #58 raport dzienny (Wojtek)
 Czeka        4   w tym 2 bez wykonawcy
 ```
 
+Przy zestawieniu takim jak wyżej linki wypisz pod spodem, po jednym na zadanie —
+w tabelce rozwaliłyby układ, ale zniknąć nie mogą.
+
 Gdy człowiek pyta „co następne", pokaż same czekające i zaproponuj jedno — nie
 wyliczaj wszystkiego. Pusty wynik znaczy tyle, że w JEGO zasięgu widoczności nic
 tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie widzi.
@@ -393,7 +416,8 @@ Sięgasz po to, gdy:
 - człowiek pyta „czemu to stoi" albo „co odblokuje 1721".
 
 Powiedz po ludzku, kto jest po drugiej stronie: „czeka na #1699 *Klucze integracyjne*
-— w trakcie, u Wojtka". Wpis z `done: true` to blokada już domknięta; punkt odhaczy
+— w trakcie, u Wojtka", i dołóż link do tamtego zadania — to na nie ktoś będzie chciał
+zajrzeć. Wpis z `done: true` to blokada już domknięta; punkt odhaczy
 się sam, nie ma tam nic do zrobienia.
 
 Blokad nie zakładasz i nie zdejmujesz — to się robi w TMS.
@@ -424,7 +448,7 @@ curl -s -w '\n%{http_code}' -X POST \
 
 Co z czym:
 - „zaczynam", „biorę się za to" → `in_progress`. Bez pytania o zgodę — to
-  odwracalne. Powiedz jednym zdaniem, które zadanie ruszyłeś.
+  odwracalne. Powiedz jednym zdaniem, które zadanie ruszyłeś, z linkiem.
 - „zrobione", „skończone" → gdy `canSelfComplete` jest `true`, proponuj
   `completed`. Gdy `false`, zadanie czeka na czyjąś weryfikację — proponuj
   `to_verify` i powiedz dlaczego. **Czekaj na „tak"**, dopiero potem wysyłaj.
@@ -552,6 +576,14 @@ Oddać? [do weryfikacji / jeszcze nie]
 Gdy `canSelfComplete` jest `true` — zamiast „do weryfikacji" proponuj
 „zakończone", bo zadanie jest własne i nikt go nie sprawdza. `jeszcze nie` →
 zostaje `in_progress`, temat zamknięty.
+
+Po oddaniu potwierdź jednym zdaniem — **z linkiem**, bo to ostatnia rzecz, jaką
+człowiek widzi z całej roboty, i często jedyna, do której wraca:
+
+```
+Zadanie #1814 czeka na Wojtka jako „Do weryfikacji"
+https://tms.example.pl/tasks/1814
+```
 
 ## Zadanie z pull requesta
 
