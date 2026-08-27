@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -286,6 +286,65 @@ Odmowy:
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
 
+## Stan projektu i puli
+
+Pytanie „co zostało w OMS", „co wisi w puli Fixy", „na czym stanęliśmy" to pytanie
+o tablicę, nie o jedno zadanie. Numery projektów i pul masz w słowniku — użyj ich:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ"   "$BASE/api/v1/integrations/tasks?projectId=7&status=not_started,in_progress&limit=100"
+```
+
+Do wyboru `projectId`, `poolId` (sama pula wystarczy — należy do jednego projektu),
+`status` (kilka po przecinku) i `limit` (do 100). Bez `status` wracają wszystkie,
+także zakończone — to właśnie odpowiedź na „co zrobione, a co czeka".
+
+W tym widoku są też **zadania bez wykonawcy** — czyli to, co dopiero czeka na
+podjęcie. Przy zwykłym wyszukiwaniu po słowach ich nie ma.
+
+Każde zadanie niesie `status`, `statusLabel`, `assignees`, `poolName` i `dueDate`.
+Odpowiadaj stanem tablicy, nie surową listą:
+
+```
+Projekt OMS — 14 zadań
+
+Zrobione     8
+W trakcie    2   #61 śledzenie przesyłek (Piotr), #58 raport dzienny (Wojtek)
+Czeka        4   w tym 2 bez wykonawcy
+```
+
+Gdy człowiek pyta „co następne", pokaż same czekające i zaproponuj jedno — nie
+wyliczaj wszystkiego. Pusty wynik znaczy tyle, że w JEGO zasięgu widoczności nic
+tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie widzi.
+
+**Stan czytasz z TMS, nie z pliku w repozytorium.** Tablica w `BOARD.md` czy innym
+pliku bywa nieaktualna i nie jest drugim źródłem prawdy — jeśli rozjeżdża się z TMS,
+powiedz to, ale nie synchronizuj jej sam.
+
+## Blokady
+
+Zadanie potrafi czekać na inne — przez punkt checklisty z przypiętym cudzym
+zadaniem. Checklista mówi tylko `blocked: true`; czym jest blokada, mówi to:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/blockers"
+```
+
+Wracają obie strony: `waitingOn` (na co czeka to zadanie — `subtaskText`, `taskId`,
+`title`, `statusLabel`, `assignees`, `done`) i `blocking` (kogo samo wstrzymuje).
+
+Sięgasz po to, gdy:
+- punkt checklisty ma `blocked: true` i trzeba powiedzieć, na co czeka,
+- oddanie odbiło się o `409 subtasks_pending`, a punkt jest zablokowany — wtedy
+  nie ma czego odhaczać, jest na co czekać,
+- człowiek pyta „czemu to stoi" albo „co odblokuje 1721".
+
+Powiedz po ludzku, kto jest po drugiej stronie: „czeka na #1699 *Klucze integracyjne*
+— w trakcie, u Wojtka". Wpis z `done: true` to blokada już domknięta; punkt odhaczy
+się sam, nie ma tam nic do zrobienia.
+
+Blokad nie zakładasz i nie zdejmujesz — to się robi w TMS.
+
 ## Zmiana statusu
 
 Statusy w TMS: `not_started` (Nierozpoczęty), `in_progress` (W trakcie),
@@ -441,6 +500,31 @@ Gdy `canSelfComplete` jest `true` — zamiast „do weryfikacji" proponuj
 „zakończone", bo zadanie jest własne i nikt go nie sprawdza. `jeszcze nie` →
 zostaje `in_progress`, temat zamknięty.
 
+## Zadanie z pull requesta
+
+„Załóż zadanie z tego PR-a" — treść bierzesz z GitHuba, nie z pamięci:
+
+```bash
+gh pr view 55 --json number,title,body,url,state,headRefName,files
+```
+
+Z tego składasz zwykłą propozycję (blok jak w „Propozycji", potwierdzenie jak zawsze):
+
+- **nazwa** — tytuł PR-a, oczyszczony z prefiksów typu `feat:` i numeru gałęzi,
+- **opis** — po co ta zmiana, dwa–trzy zdania z opisu PR-a własnymi słowami; nie
+  wklejaj całego `body`, zwłaszcza szablonu z checkboxami,
+- **materiały** — link do PR-a i co sprawdzić; dopisujesz je dopiero po założeniu,
+  tak samo jak przy robocie z rozmowy.
+
+Numer PR-a i link do niego dawaj **zawsze**, w opisie albo w materiałach — bez tego
+zadanie nie prowadzi z powrotem do kodu.
+
+Gdy PR jest już scalony, zadanie i tak ma sens (ślad w changelogu), ale powiedz to
+w propozycji: człowiek może chcieć od razu `completed` zamiast `in_progress`.
+
+Bez numeru PR-a nie zgaduj — zapytaj o numer albo o link. Nie przeglądaj repozytorium
+w poszukiwaniu „tego właściwego" PR-a.
+
 ## Czego nie robisz
 
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
@@ -448,4 +532,6 @@ recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
 Nie zmieniasz nazwy, terminu, projektu ani wykonawcy istniejącego zadania — to się
 robi w TMS. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
+Nie przeglądasz repozytorium ani kodu na potrzeby stanu zadań — TMS mówi, co
+zrobione i co czeka; jeśli trzeba zajrzeć w kod, to osobna robota, nie ta wtyczka.
 Nie wysyłasz do TMS treści, których nie było w bloku, który człowiek zatwierdził.
