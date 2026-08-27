@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -320,6 +320,59 @@ tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie widzi.
 **Stan czytasz z TMS, nie z pliku w repozytorium.** Tablica w `BOARD.md` czy innym
 pliku bywa nieaktualna i nie jest drugim źródłem prawdy — jeśli rozjeżdża się z TMS,
 powiedz to, ale nie synchronizuj jej sam.
+
+## Treść zadania: opis, zdjęcia, załączniki
+
+Wyszukiwanie daje tytuł, status i wykonawców — nie treść. Po opis sięgasz osobno:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/description"
+```
+
+Wraca `{taskId, title, html, imagesInDescription}`. `html` to opis tak, jak trzyma go
+edytor. `imagesInDescription` mówi, ile zdjęć siedzi w środku — **samych obrazów w tym
+polu nie ma**, bo w TMS zdjęcie wklejone do opisu jest zwykłym załącznikiem zadania.
+
+Co doczepione:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/attachments"
+```
+
+Lista `{id, fileName, mimeType, sizeBytes, kind, uploadedByName, uploadedAt, readable}`.
+`kind` to `task` (załącznik zadania, w tym obrazy z opisu) albo `verification` (dowód
+pracy) — zawęzisz przez `?kind=task`. `readable: false` znaczy, że plik przekracza limit
+25 MB; powiedz to zamiast próbować go ściągać.
+
+Zawartość — **zapisz do pliku i otwórz go**:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" -o /tmp/zrzut.png \
+  "$BASE/api/v1/integrations/task-attachments/45"
+```
+
+Potem czytasz plik zwykłym narzędziem do odczytu. Obrazy widzisz naprawdę — co jest
+zaznaczone strzałką, jaki komunikat błędu jest na zrzucie, co pokazuje wykres. Tak samo
+PDF-y, pliki tekstowe, CSV, logi i kod.
+
+Kiedy po to sięgasz:
+- **zadanie mówi „jak na zrzucie"** — obejrzyj zrzut, zamiast pytać, co na nim jest,
+- **człowiek prosi wprost** („co jest na tym zdjęciu w 1721", „przeczytaj załącznik"),
+- **bierzesz się za zadanie**, a opis ma obrazy albo pliki — zajrzyj, zanim zaczniesz.
+
+Nie pobieraj wszystkiego hurtem „na wszelki wypadek". Bierz to, co potrzebne do roboty,
+o którą chodzi — każdy plik to koszt i czas.
+
+Czego nie otworzysz wprost: **Worda i Excela**. Powiedz to po ludzku („to plik Excela,
+nie odczytam go stąd") i zapytaj, czy człowiek nie woli wkleić tego, co istotne.
+
+Odmowy:
+- `404` — zadania albo pliku nie ma, lub są poza zasięgiem właściciela klucza. Numer
+  załącznika sprawdzamy przez zadanie, do którego należy, więc cudzy plik też da `404`.
+- `413 file_too_large` — plik ponad 25 MB. Nie próbuj obejść.
+- `400 invalid_kind` — dozwolone są tylko `task` i `verification`.
+
+Plików do TMS **nie wysyłasz** — dodaje się je w przeglądarce.
 
 ## Blokady
 
