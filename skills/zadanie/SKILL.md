@@ -314,6 +314,37 @@ Odmowy:
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
 
+## Co do mnie przyszło
+
+„Co mam do zrobienia", „co czeka na moją ocenę", „co oddałem", „co komu zleciłem" —
+to pytania o WŁASNE sprawy, nie o tablicę projektu. Do tego służy `view`:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?view=mine_active&limit=100"
+```
+
+Widoki i pytania, na które odpowiadają:
+- `mine_active` — „co mam do zrobienia", moje niezakończone.
+- `mine_done` — „co zrobiłem".
+- `to_verify` — „co czeka na MOJĄ ocenę", cudza robota oddana do sprawdzenia.
+- `awaiting` — „co oddałem i wisi" u kogoś do zatwierdzenia.
+- `delegated` — „co zleciłem innym".
+
+Zadanie z `unopened` na `true` jest świeże: zlecone właścicielowi klucza i jeszcze
+przez niego nieotwierane w TMS. To najbliższe temu, co człowiek nazywa „nowe u mnie",
+więc wypisz takie osobno albo oznacz — ale nie rób z tego alarmu.
+
+```
+Masz 5 zadań w toku, 2 jeszcze nieotwierane:
+
+Nowe    #1841 Poprawić eksport faktur (zlecił Wojtek)
+        #1839 Zdjęcia do karty produktu (zlecił Kuba)
+W toku  #1833, #1827, #1791
+```
+
+Nie ma tu widoku puli — „pula" w TMS znaczy co innego niż w rozmowie. Zadania
+czekające w puli projektu czytasz przez `poolId` (patrz niżej).
+
 ## Stan projektu i puli
 
 Pytanie „co zostało w OMS", „co wisi w puli Fixy", „na czym stanęliśmy" to pytanie
