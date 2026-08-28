@@ -473,6 +473,36 @@ Odmowy:
 
 Plików do TMS **nie wysyłasz** — dodaje się je w przeglądarce.
 
+### Wysłanie pliku
+
+Plik Z DYSKU — log, zrzut z testu, wygenerowany raport — dokładasz do zadania:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" \
+  -F "file=@/sciezka/do/log.txt" -F "kind=verification" \
+  "$BASE/api/v1/integrations/tasks/1721/attachments"
+```
+
+`kind=verification` (domyślne) to materiały do weryfikacji — dowód skończonej
+roboty; wgrywa je wykonawca. `kind=task` to kontekst zadania, brief czy instrukcja —
+wgrywa go ten, kto zadanie zlecił. Nie odwracaj tego: dowód pracy w załącznikach
+zadania wygląda, jakby ktoś dołożył wymagania.
+
+**Powiedz, co wysyłasz i dokąd, zanim wyślesz.** Plik zostaje przy zadaniu na stałe
+i widzą go wszyscy — to nie jest ruch odwracalny po cichu.
+
+**Czego nie wyślesz:** zrzutu wklejonego do okna rozmowy. Dla Ciebie to obraz
+w kontekście, nie plik na dysku — nie ma czego przekazać dalej. Powiedz to wprost
+i poproś o zapisanie go na dysku albo o ścieżkę; nie udawaj, że się nie udało
+z innego powodu, i nie próbuj odtwarzać obrazka.
+
+Odmowy:
+- `403 forbidden` — nie ta sekcja dla tej osoby (patrz podział wyżej).
+- `413` — plik albo cała sekcja przekracza limit. Serwer podaje, ile zajęte
+  i ile zostało — powtórz to człowiekowi zamiast samego „za duży".
+- `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
+
 ## Komentarze
 
 Komentarze są w TMS główną rozmową o zadaniu. Opis mówi, co było do zrobienia na
