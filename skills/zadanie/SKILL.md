@@ -449,6 +449,9 @@ curl -s -w '\n%{http_code}' -X POST \
 Co z czym:
 - „zaczynam", „biorę się za to" → `in_progress`. Bez pytania o zgodę — to
   odwracalne. Powiedz jednym zdaniem, które zadanie ruszyłeś, z linkiem.
+  Zadanie z puli (bez wykonawcy) start bierze na właściciela klucza — tak jak
+  „Weź" w oknie zadania. Powiedz to jednym zdaniem: wzięte i w toku. Zadania,
+  które ma już wykonawcę, start nie przejmuje.
 - „zrobione", „skończone" → gdy `canSelfComplete` jest `true`, proponuj
   `completed`. Gdy `false`, zadanie czeka na czyjąś weryfikację — proponuj
   `to_verify` i powiedz dlaczego. **Czekaj na „tak"**, dopiero potem wysyłaj.
