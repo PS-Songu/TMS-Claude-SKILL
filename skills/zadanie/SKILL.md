@@ -18,7 +18,8 @@ Wszystko siedzi w `~/.claude/tms.json` — poza tym repo, klucz nigdy do gita:
   "apiKey": "tms_...",
   "propose": true,
   "rules": "Domyślny projekt: TMS. Zadania dla siebie chyba że mówię inaczej.",
-  "style": "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
+  "style": "Krótko, bez ozdobników. Opis maksymalnie trzy zdania.",
+  "projectByFolder": { "C:\\Users\\jan\\Desktop\\OMS": "OMS 🚚" }
 }
 ```
 
@@ -32,14 +33,18 @@ prośbę. `rules` to prywatne ustalenia tej osoby — trzymaj się ich, chyba ż
 w rozmowie padło co innego. `style` dotyczy brzmienia: długości opisu, tonu, tego
 czy używać wyliczeń. Reguły mówią CO wpisać, styl JAK to napisać.
 
+`projectByFolder` to mapa katalog na dysku → projekt w TMS. Gdy rozmowa toczy się
+w takim katalogu albo gdziekolwiek pod nim, podstaw ten projekt do propozycji
+zamiast pytać. Pasuje kilka ścieżek → wygrywa najdłuższa (najbardziej szczegółowa).
+Projekt powiedziany wprost w rozmowie ma pierwszeństwo, a nazwy spoza słownika
+nie wpisujesz nawet z mapy — powiedz wtedy, że tego projektu nie ma w Twoim
+zasięgu. Katalog spoza mapy: ustalasz projekt jak dotąd.
+
 Ustawienia pokazuje i objaśnia `/tms:ustawienia`. Plik ma komentarze `//` — pomiń
 je przy czytaniu i NIE kasuj ich, gdyby przyszło Ci coś w nim zmieniać.
 
 W przykładach niżej `$KLUCZ` to `apiKey`, a `$BASE` to `baseUrl`. Podstaw je sam
 przy wywołaniu.
-
-W przykładach niżej `$KLUCZ` to klucz z pliku, a `$BASE` — adres TMS z okienka
-(albo z pliku, gdy okienko puste). Podstaw je sam przy wywołaniu.
 
 ## Numer zadania ZAWSZE z linkiem
 
@@ -236,6 +241,9 @@ Zasady składania:
   „Formatowanie" wyżej. W bloku nie pokazujesz znaczników.
 - Priorytet: `na dziś` tylko gdy termin jest dzisiaj, `wysoki` gdy blokuje
   kogoś lub psuje robotę na produkcji, inaczej `średni`.
+- Projekt: z mapy `projectByFolder`, gdy katalog rozmowy do niej pasuje (patrz
+  „Ustawienia"). Nie pytaj wtedy o projekt — pokaż go w bloku, człowiek poprawi
+  przez „popraw", jeśli tym razem chodzi o co innego.
 - Pola, których nie da się ustalić — myślnik. Nie wymyślaj puli ani terminu.
 - Bez strzałek i uzasadnień przy polach. Dlaczego akurat ta osoba czy priorytet —
   tłumacz dopiero na pytanie.
@@ -305,6 +313,74 @@ Odmowy:
   weryfikacji. Powiedz to wprost i zaproponuj materiały.
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
+
+## Termin i wykonawca
+
+„Przesuń 1827 na piątek", „zleć to Wojtkowi", „oddaję to z powrotem do puli" —
+jedno wejście, bo w TMS to jedno okno edycji:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"dueDate":"2026-09-04"}' \
+  "$BASE/api/v1/integrations/tasks/1827/fields"
+```
+
+Do wyboru, po jednym na raz albo razem:
+- `dueDate` — `"2026-09-04"` ustawia termin, `null` go zdejmuje,
+- `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
+- `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
+
+**Datę zawsze pokaż jako konkretny dzień, zanim wyślesz.** „Piątek" bywa nie tym
+piątkiem, o którym myślisz — dzień tygodnia z datą rozwiewa to od razu: „termin na
+piątek 4 września?".
+
+**Przepisanie zadania komuś innemu potwierdź.** Tamta osoba zobaczy je u siebie
+i dostanie powiadomienie. Oddanie do puli i własny termin — bez ceregieli, to
+odwracalne.
+
+Odmowy:
+- `403 forbidden` — termin i wykonawcę zmienia ten, kto zadanie zlecił (albo lider
+  czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz je oddać do puli,
+  ale nie przestawić terminu — powiedz to i zaproponuj komentarz z prośbą.
+- `403 assign_to_others_denied` — właściciel klucza nie ma prawa zlecać innym
+  (`canAssignToOthers` w słowniku na `false`). Sprawdź to ZANIM zaproponujesz
+  przepisanie, nie po odmowie.
+- `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
+- `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli) albo puste.
+
+Nazwy, projektu ani puli tędy nie zmieniasz — to się robi w TMS, patrząc na tablicę.
+
+## Co do mnie przyszło
+
+„Co mam do zrobienia", „co czeka na moją ocenę", „co oddałem", „co komu zleciłem" —
+to pytania o WŁASNE sprawy, nie o tablicę projektu. Do tego służy `view`:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?view=mine_active&limit=100"
+```
+
+Widoki i pytania, na które odpowiadają:
+- `mine_active` — „co mam do zrobienia", moje niezakończone.
+- `mine_done` — „co zrobiłem".
+- `to_verify` — „co czeka na MOJĄ ocenę", cudza robota oddana do sprawdzenia.
+- `awaiting` — „co oddałem i wisi" u kogoś do zatwierdzenia.
+- `delegated` — „co zleciłem innym".
+
+Zadanie z `unopened` na `true` jest świeże: zlecone właścicielowi klucza i jeszcze
+przez niego nieotwierane w TMS. To najbliższe temu, co człowiek nazywa „nowe u mnie",
+więc wypisz takie osobno albo oznacz — ale nie rób z tego alarmu.
+
+```
+Masz 5 zadań w toku, 2 jeszcze nieotwierane:
+
+Nowe    #1841 Poprawić eksport faktur (zlecił Wojtek)
+        #1839 Zdjęcia do karty produktu (zlecił Kuba)
+W toku  #1833, #1827, #1791
+```
+
+Nie ma tu widoku puli — „pula" w TMS znaczy co innego niż w rozmowie. Zadania
+czekające w puli projektu czytasz przez `poolId` (patrz niżej).
 
 ## Stan projektu i puli
 
@@ -397,6 +473,82 @@ Odmowy:
 
 Plików do TMS **nie wysyłasz** — dodaje się je w przeglądarce.
 
+### Wysłanie pliku
+
+Plik Z DYSKU — log, zrzut z testu, wygenerowany raport — dokładasz do zadania:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" \
+  -F "file=@/sciezka/do/log.txt" -F "kind=verification" \
+  "$BASE/api/v1/integrations/tasks/1721/attachments"
+```
+
+`kind=verification` (domyślne) to materiały do weryfikacji — dowód skończonej
+roboty; wgrywa je wykonawca. `kind=task` to kontekst zadania, brief czy instrukcja —
+wgrywa go ten, kto zadanie zlecił. Nie odwracaj tego: dowód pracy w załącznikach
+zadania wygląda, jakby ktoś dołożył wymagania.
+
+**Powiedz, co wysyłasz i dokąd, zanim wyślesz.** Plik zostaje przy zadaniu na stałe
+i widzą go wszyscy — to nie jest ruch odwracalny po cichu.
+
+**Czego nie wyślesz:** zrzutu wklejonego do okna rozmowy. Dla Ciebie to obraz
+w kontekście, nie plik na dysku — nie ma czego przekazać dalej. Powiedz to wprost
+i poproś o zapisanie go na dysku albo o ścieżkę; nie udawaj, że się nie udało
+z innego powodu, i nie próbuj odtwarzać obrazka.
+
+Odmowy:
+- `403 forbidden` — nie ta sekcja dla tej osoby (patrz podział wyżej).
+- `413` — plik albo cała sekcja przekracza limit. Serwer podaje, ile zajęte
+  i ile zostało — powtórz to człowiekowi zamiast samego „za duży".
+- `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
+
+## Komentarze
+
+Komentarze są w TMS główną rozmową o zadaniu. Opis mówi, co było do zrobienia na
+starcie; co ustalono po drodze — mówią komentarze. Czytaj je zawsze, gdy masz
+zrozumieć stan sprawy, a nie tylko zobaczyć tytuł.
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/comments"
+```
+
+Wracają `total` i ostatnie wpisy (domyślnie 30, `limit` do 100), od najstarszego:
+`author`, `createdAt`, `html`, `replyToAuthor`. Gdy `total` jest większe niż to, co
+dostałeś, powiedz o tym — „ostatnie 30 z 54" — zamiast udawać, że widziałeś całość.
+
+Streszczaj, nie przepisuj. Człowiek pyta „co tam ustalili", nie „przeczytaj mi wątek".
+
+### Dopisanie komentarza
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"html":"<p>Poprawione, zostaje jeszcze eksport.</p>"}' \
+  "$BASE/api/v1/integrations/tasks/1721/comments"
+```
+
+Treść formatujesz tak jak opis (patrz „Formatowanie"). Odpowiedź na czyjś wpis —
+dołóż `replyToId` z odczytu.
+
+**Pokaż treść i poczekaj na „tak".** Komentarz widzą wszyscy przy zadaniu i idzie
+z niego powiadomienie — to nie jest ruch odwracalny po cichu, jak start zadania.
+
+Komentujesz pod każdym zadaniem, które właściciel klucza widzi, także cudzym —
+to jego prawo w TMS. Nie mylą się za to trzy rzeczy, każda ma swoje miejsce:
+- **opis** — co jest do zrobienia; domena zlecającego,
+- **materiały do weryfikacji** — co zrobiono i jak to sprawdzić; domena wykonawcy,
+- **komentarz** — rozmowa, pytanie, ustalenie; każdego, kto widzi zadanie.
+
+Gdy człowiek mówi „dopisz, że…", zwykle chodzi o komentarz. Gdy mówi „opisz, co
+zrobiłeś" przy własnym zadaniu — o materiały. W razie wątpliwości zapytaj, zamiast
+wpisywać ustalenie z rozmowy do opisu cudzego zadania.
+
+Komentarzy nie poprawiasz i nie kasujesz — także własnych. Porządki w wątku robi
+się w TMS, gdzie widać kontekst.
+
+Odmowy: `404` — zadania nie ma albo jest poza zasięgiem właściciela klucza.
+
 ## Blokady
 
 Zadanie potrafi czekać na inne — przez punkt checklisty z przypiętym cudzym
@@ -420,7 +572,39 @@ Powiedz po ludzku, kto jest po drugiej stronie: „czeka na #1699 *Klucze integr
 zajrzeć. Wpis z `done: true` to blokada już domknięta; punkt odhaczy
 się sam, nie ma tam nic do zrobienia.
 
-Blokad nie zakładasz i nie zdejmujesz — to się robi w TMS.
+### Założenie blokady
+
+„To czeka na 1827", „zablokuj ten punkt, dopóki Wojtek nie skończy" — blokada wisi
+na PUNKCIE checklisty i wskazuje zadanie, na które ten punkt czeka. Nie ma punktu?
+Najpierw go dopisz (patrz „Podzadania"), potem przypnij.
+
+```bash
+curl -s -w '\n%{http_code}' -X PUT \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"blockerTaskId":1827}' \
+  "$BASE/api/v1/integrations/tasks/1721/subtasks/45/blocker"
+```
+
+Zdjęcie — `DELETE` tej samej ścieżki, bez treści. Punkt wraca wtedy nieodhaczony,
+nawet jeśli bloker był zamknięty: roboty nikt za niego nie zrobił.
+
+Zanim przypniesz, ustal KTÓRE zadanie blokuje — po numerze albo wyszukaniem, jak przy
+zmianie statusu. Pokaż oba zadania i zapytaj; przypięcie wysyła powiadomienie do
+wykonawcy blokera, więc to nie jest ruch po cichu.
+
+Punktu z blokadą nie odhaczysz ręcznie i nie próbuj — odhaczy się sam, gdy bloker
+zostanie zamknięty. Nowego zadania-blokera wtyczka nie zakłada jednym ruchem: gdy
+blokera jeszcze nie ma, załóż zadanie normalnie, z potwierdzeniem, i dopiero je przypnij.
+
+Odmowy:
+- `403 forbidden` — blokady stawia twórca zadania albo jego wykonawca. Przy samych
+  punktach checklisty reguła jest szersza, więc „mogę dopisać punkt, ale nie mogę go
+  zablokować" to normalna sytuacja, nie błąd.
+- `409 cycle` — zadania zablokowałyby się nawzajem, choćby przez łańcuch pośredników.
+  Powiedz, że tak się nie da, i pokaż, co już na co czeka.
+- `404 blocker_not_found` — zadania-blokera nie ma albo właściciel klucza go nie widzi.
+- `409 no_blocker` przy zdejmowaniu — na tym punkcie nic nie wisi.
+
 
 ## Zmiana statusu
 
@@ -617,8 +801,9 @@ w poszukiwaniu „tego właściwego" PR-a.
 
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
-Nie zmieniasz nazwy, terminu, projektu ani wykonawcy istniejącego zadania — to się
-robi w TMS. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
+Nie zmieniasz nazwy, projektu ani puli istniejącego zadania — to się robi w TMS.
+Termin i wykonawcę zmieniasz na prośbę (patrz „Termin i wykonawca"), nie z własnej
+inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie przeglądasz repozytorium ani kodu na potrzeby stanu zadań — TMS mówi, co
 zrobione i co czeka; jeśli trzeba zajrzeć w kod, to osobna robota, nie ta wtyczka.
