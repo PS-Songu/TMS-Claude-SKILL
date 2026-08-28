@@ -18,7 +18,8 @@ Wszystko siedzi w `~/.claude/tms.json` — poza tym repo, klucz nigdy do gita:
   "apiKey": "tms_...",
   "propose": true,
   "rules": "Domyślny projekt: TMS. Zadania dla siebie chyba że mówię inaczej.",
-  "style": "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
+  "style": "Krótko, bez ozdobników. Opis maksymalnie trzy zdania.",
+  "projectByFolder": { "C:\\Users\\jan\\Desktop\\OMS": "OMS 🚚" }
 }
 ```
 
@@ -32,14 +33,18 @@ prośbę. `rules` to prywatne ustalenia tej osoby — trzymaj się ich, chyba ż
 w rozmowie padło co innego. `style` dotyczy brzmienia: długości opisu, tonu, tego
 czy używać wyliczeń. Reguły mówią CO wpisać, styl JAK to napisać.
 
+`projectByFolder` to mapa katalog na dysku → projekt w TMS. Gdy rozmowa toczy się
+w takim katalogu albo gdziekolwiek pod nim, podstaw ten projekt do propozycji
+zamiast pytać. Pasuje kilka ścieżek → wygrywa najdłuższa (najbardziej szczegółowa).
+Projekt powiedziany wprost w rozmowie ma pierwszeństwo, a nazwy spoza słownika
+nie wpisujesz nawet z mapy — powiedz wtedy, że tego projektu nie ma w Twoim
+zasięgu. Katalog spoza mapy: ustalasz projekt jak dotąd.
+
 Ustawienia pokazuje i objaśnia `/tms:ustawienia`. Plik ma komentarze `//` — pomiń
 je przy czytaniu i NIE kasuj ich, gdyby przyszło Ci coś w nim zmieniać.
 
 W przykładach niżej `$KLUCZ` to `apiKey`, a `$BASE` to `baseUrl`. Podstaw je sam
 przy wywołaniu.
-
-W przykładach niżej `$KLUCZ` to klucz z pliku, a `$BASE` — adres TMS z okienka
-(albo z pliku, gdy okienko puste). Podstaw je sam przy wywołaniu.
 
 ## Numer zadania ZAWSZE z linkiem
 
@@ -236,6 +241,9 @@ Zasady składania:
   „Formatowanie" wyżej. W bloku nie pokazujesz znaczników.
 - Priorytet: `na dziś` tylko gdy termin jest dzisiaj, `wysoki` gdy blokuje
   kogoś lub psuje robotę na produkcji, inaczej `średni`.
+- Projekt: z mapy `projectByFolder`, gdy katalog rozmowy do niej pasuje (patrz
+  „Ustawienia"). Nie pytaj wtedy o projekt — pokaż go w bloku, człowiek poprawi
+  przez „popraw", jeśli tym razem chodzi o co innego.
 - Pola, których nie da się ustalić — myślnik. Nie wymyślaj puli ani terminu.
 - Bez strzałek i uzasadnień przy polach. Dlaczego akurat ta osoba czy priorytet —
   tłumacz dopiero na pytanie.
