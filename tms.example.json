@@ -22,5 +22,15 @@
   //   "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
   //   "Opis pełnymi zdaniami, bez wyliczeń."
   //   "Nazwy zadań zaczynaj od czasownika."
-  "style": ""
+  "style": "",
+
+  // Projekt podpowiadany po katalogu, w którym toczy się rozmowa.
+  // Klucz to ścieżka na dysku, wartość — nazwa projektu w TMS, dokładnie taka
+  // jak w systemie. Liczy się też każdy podkatalog. Przykład:
+  //   "projectByFolder": {
+  //     "C:\\Users\\jan\\Desktop\\OMS": "OMS 🚚",
+  //     "C:\\Users\\jan\\Desktop\\WMS": "WMS"
+  //   }
+  // Projekt powiedziany wprost w rozmowie zawsze wygrywa z tą mapą.
+  "projectByFolder": {}
 }

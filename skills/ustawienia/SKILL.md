@@ -11,7 +11,7 @@ człowiek, nie Ty** — Twoja rola to pokazać stan i ścieżkę.
 
 ## Wersja
 
-**Ta instrukcja pochodzi z wydania 0.13.0.** Numer jest wpisany w tym pliku, więc
+**Ta instrukcja pochodzi z wydania 0.14.0.** Numer jest wpisany w tym pliku, więc
 zawsze mówi prawdę o tym, co jest w tej chwili wczytane — nie o tym, co leży
 w repozytorium czy w katalogu wtyczek.
 
@@ -21,9 +21,9 @@ Przy pokazywaniu ustawień wypisz go i sprawdź, czy nie ma nowszego wydania:
 curl -s --max-time 10 https://api.github.com/repos/jf-investing/TMS-Claude-SKILL/releases/latest
 ```
 
-Interesuje Cię `tag_name` (np. `v0.13.0`). Porównaj z numerem wyżej:
-- **te same** → dopisz `Wersja: 0.13.0 (najnowsza)`.
-- **wydanie nowsze** → dopisz `Wersja: 0.13.0 — jest już 0.14.0` i powiedz, jak
+Interesuje Cię `tag_name` (np. `v0.14.0`). Porównaj z numerem wyżej:
+- **te same** → dopisz `Wersja: 0.14.0 (najnowsza)`.
+- **wydanie nowsze** → dopisz `Wersja: 0.14.0 — jest już 0.15.0` i powiedz, jak
   zaktualizować: w zarządzaniu wtyczkami odświeżyć źródło, potem **zamknąć
   i otworzyć edytor** i zacząć nową rozmowę. Sam nowy numer w oknie wtyczek nie
   wystarczy — dopóki tu widnieje stary, wczytana jest stara instrukcja.
@@ -46,16 +46,20 @@ Pokaż stan w takim bloku, a pod nim pełną ścieżkę:
 ```
 Ustawienia TMS
 
-Wersja:     0.13.0 (najnowsza)
+Wersja:     0.14.0 (najnowsza)
 Adres:      https://tms.example.pl
 Klucz:      ustawiony (…3k7f)
 Propozycje: włączone
 Reguły:     Domyślny projekt: TMS. Zadania dla siebie chyba że mówię inaczej.
 Styl:       —
+Projekty:   2 katalogi (Desktop\OMS → OMS 🚚, Desktop\WMS → WMS)
 
 Plik: C:\Users\<nazwa>\.claude\tms.json
 W środku są opisy wszystkich pól i przykłady.
 ```
+
+Przy `projectByFolder` wypisz liczbę katalogów i same pary, po ludzku — pełnych
+ścieżek nie przepisuj, gdy jest ich więcej niż kilka. Pusta mapa → myślnik.
 
 **Klucza nigdy nie wypisujesz w całości** — tylko cztery ostatnie znaki, żeby dało
 się rozpoznać, który to. Brak klucza → `Klucz: brak`. Puste pole → myślnik.
@@ -101,7 +105,17 @@ fs.writeFileSync(p, `{
   //   "Krótko, bez ozdobników. Opis maksymalnie trzy zdania."
   //   "Opis pełnymi zdaniami, bez wyliczeń."
   //   "Nazwy zadań zaczynaj od czasownika."
-  "style": ""
+  "style": "",
+
+  // Projekt podpowiadany po katalogu, w którym toczy się rozmowa.
+  // Klucz to ścieżka na dysku, wartość — nazwa projektu w TMS, dokładnie taka
+  // jak w systemie. Liczy się też każdy podkatalog. Przykład:
+  //   "projectByFolder": {
+  //     "C:\\Users\\jan\\Desktop\\OMS": "OMS 🚚",
+  //     "C:\\Users\\jan\\Desktop\\WMS": "WMS"
+  //   }
+  // Projekt powiedziany wprost w rozmowie zawsze wygrywa z tą mapą.
+  "projectByFolder": {}
 }
 `, "utf8");
 console.log("utworzono:", p);
