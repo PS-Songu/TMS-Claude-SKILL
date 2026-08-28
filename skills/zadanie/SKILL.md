@@ -436,6 +436,52 @@ Odmowy:
 
 Plików do TMS **nie wysyłasz** — dodaje się je w przeglądarce.
 
+## Komentarze
+
+Komentarze są w TMS główną rozmową o zadaniu. Opis mówi, co było do zrobienia na
+starcie; co ustalono po drodze — mówią komentarze. Czytaj je zawsze, gdy masz
+zrozumieć stan sprawy, a nie tylko zobaczyć tytuł.
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/comments"
+```
+
+Wracają `total` i ostatnie wpisy (domyślnie 30, `limit` do 100), od najstarszego:
+`author`, `createdAt`, `html`, `replyToAuthor`. Gdy `total` jest większe niż to, co
+dostałeś, powiedz o tym — „ostatnie 30 z 54" — zamiast udawać, że widziałeś całość.
+
+Streszczaj, nie przepisuj. Człowiek pyta „co tam ustalili", nie „przeczytaj mi wątek".
+
+### Dopisanie komentarza
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"html":"<p>Poprawione, zostaje jeszcze eksport.</p>"}' \
+  "$BASE/api/v1/integrations/tasks/1721/comments"
+```
+
+Treść formatujesz tak jak opis (patrz „Formatowanie"). Odpowiedź na czyjś wpis —
+dołóż `replyToId` z odczytu.
+
+**Pokaż treść i poczekaj na „tak".** Komentarz widzą wszyscy przy zadaniu i idzie
+z niego powiadomienie — to nie jest ruch odwracalny po cichu, jak start zadania.
+
+Komentujesz pod każdym zadaniem, które właściciel klucza widzi, także cudzym —
+to jego prawo w TMS. Nie mylą się za to trzy rzeczy, każda ma swoje miejsce:
+- **opis** — co jest do zrobienia; domena zlecającego,
+- **materiały do weryfikacji** — co zrobiono i jak to sprawdzić; domena wykonawcy,
+- **komentarz** — rozmowa, pytanie, ustalenie; każdego, kto widzi zadanie.
+
+Gdy człowiek mówi „dopisz, że…", zwykle chodzi o komentarz. Gdy mówi „opisz, co
+zrobiłeś" przy własnym zadaniu — o materiały. W razie wątpliwości zapytaj, zamiast
+wpisywać ustalenie z rozmowy do opisu cudzego zadania.
+
+Komentarzy nie poprawiasz i nie kasujesz — także własnych. Porządki w wątku robi
+się w TMS, gdzie widać kontekst.
+
+Odmowy: `404` — zadania nie ma albo jest poza zasięgiem właściciela klucza.
+
 ## Blokady
 
 Zadanie potrafi czekać na inne — przez punkt checklisty z przypiętym cudzym
