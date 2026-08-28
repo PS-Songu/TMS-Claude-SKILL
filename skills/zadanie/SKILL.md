@@ -459,7 +459,39 @@ Powiedz po ludzku, kto jest po drugiej stronie: „czeka na #1699 *Klucze integr
 zajrzeć. Wpis z `done: true` to blokada już domknięta; punkt odhaczy
 się sam, nie ma tam nic do zrobienia.
 
-Blokad nie zakładasz i nie zdejmujesz — to się robi w TMS.
+### Założenie blokady
+
+„To czeka na 1827", „zablokuj ten punkt, dopóki Wojtek nie skończy" — blokada wisi
+na PUNKCIE checklisty i wskazuje zadanie, na które ten punkt czeka. Nie ma punktu?
+Najpierw go dopisz (patrz „Podzadania"), potem przypnij.
+
+```bash
+curl -s -w '\n%{http_code}' -X PUT \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"blockerTaskId":1827}' \
+  "$BASE/api/v1/integrations/tasks/1721/subtasks/45/blocker"
+```
+
+Zdjęcie — `DELETE` tej samej ścieżki, bez treści. Punkt wraca wtedy nieodhaczony,
+nawet jeśli bloker był zamknięty: roboty nikt za niego nie zrobił.
+
+Zanim przypniesz, ustal KTÓRE zadanie blokuje — po numerze albo wyszukaniem, jak przy
+zmianie statusu. Pokaż oba zadania i zapytaj; przypięcie wysyła powiadomienie do
+wykonawcy blokera, więc to nie jest ruch po cichu.
+
+Punktu z blokadą nie odhaczysz ręcznie i nie próbuj — odhaczy się sam, gdy bloker
+zostanie zamknięty. Nowego zadania-blokera wtyczka nie zakłada jednym ruchem: gdy
+blokera jeszcze nie ma, załóż zadanie normalnie, z potwierdzeniem, i dopiero je przypnij.
+
+Odmowy:
+- `403 forbidden` — blokady stawia twórca zadania albo jego wykonawca. Przy samych
+  punktach checklisty reguła jest szersza, więc „mogę dopisać punkt, ale nie mogę go
+  zablokować" to normalna sytuacja, nie błąd.
+- `409 cycle` — zadania zablokowałyby się nawzajem, choćby przez łańcuch pośredników.
+  Powiedz, że tak się nie da, i pokaż, co już na co czeka.
+- `404 blocker_not_found` — zadania-blokera nie ma albo właściciel klucza go nie widzi.
+- `409 no_blocker` przy zdejmowaniu — na tym punkcie nic nie wisi.
+
 
 ## Zmiana statusu
 
