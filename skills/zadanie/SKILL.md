@@ -314,6 +314,43 @@ Odmowy:
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
 
+## Termin i wykonawca
+
+„Przesuń 1827 na piątek", „zleć to Wojtkowi", „oddaję to z powrotem do puli" —
+jedno wejście, bo w TMS to jedno okno edycji:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"dueDate":"2026-09-04"}' \
+  "$BASE/api/v1/integrations/tasks/1827/fields"
+```
+
+Do wyboru, po jednym na raz albo razem:
+- `dueDate` — `"2026-09-04"` ustawia termin, `null` go zdejmuje,
+- `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
+- `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
+
+**Datę zawsze pokaż jako konkretny dzień, zanim wyślesz.** „Piątek" bywa nie tym
+piątkiem, o którym myślisz — dzień tygodnia z datą rozwiewa to od razu: „termin na
+piątek 4 września?".
+
+**Przepisanie zadania komuś innemu potwierdź.** Tamta osoba zobaczy je u siebie
+i dostanie powiadomienie. Oddanie do puli i własny termin — bez ceregieli, to
+odwracalne.
+
+Odmowy:
+- `403 forbidden` — termin i wykonawcę zmienia ten, kto zadanie zlecił (albo lider
+  czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz je oddać do puli,
+  ale nie przestawić terminu — powiedz to i zaproponuj komentarz z prośbą.
+- `403 assign_to_others_denied` — właściciel klucza nie ma prawa zlecać innym
+  (`canAssignToOthers` w słowniku na `false`). Sprawdź to ZANIM zaproponujesz
+  przepisanie, nie po odmowie.
+- `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
+- `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli) albo puste.
+
+Nazwy, projektu ani puli tędy nie zmieniasz — to się robi w TMS, patrząc na tablicę.
+
 ## Co do mnie przyszło
 
 „Co mam do zrobienia", „co czeka na moją ocenę", „co oddałem", „co komu zleciłem" —
@@ -734,8 +771,9 @@ w poszukiwaniu „tego właściwego" PR-a.
 
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
-Nie zmieniasz nazwy, terminu, projektu ani wykonawcy istniejącego zadania — to się
-robi w TMS. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
+Nie zmieniasz nazwy, projektu ani puli istniejącego zadania — to się robi w TMS.
+Termin i wykonawcę zmieniasz na prośbę (patrz „Termin i wykonawca"), nie z własnej
+inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie przeglądasz repozytorium ani kodu na potrzeby stanu zadań — TMS mówi, co
 zrobione i co czeka; jeśli trzeba zajrzeć w kod, to osobna robota, nie ta wtyczka.
