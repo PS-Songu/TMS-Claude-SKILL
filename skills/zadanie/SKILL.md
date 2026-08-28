@@ -549,6 +549,77 @@ się w TMS, gdzie widać kontekst.
 
 Odmowy: `404` — zadania nie ma albo jest poza zasięgiem właściciela klucza.
 
+## Zgłoszenia błędów
+
+Część zadań powstaje ze **zgłoszeń** — ktoś zgłosił błąd, ktoś zrobił z tego zadanie.
+Zgłoszenie żyje wtedy własnym życiem: ma swój status i swojego autora, który czeka na
+odpowiedź. Zamknięcie zadania samo z siebie NIC z nim nie robi.
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/bug-reports"
+```
+
+Pusta lista = zadanie nie powstało ze zgłoszenia; nie drąż. Lista bywa dłuższa niż
+jednoelementowa — ten sam błąd zgłasza czasem kilka osób i wszystkie te zgłoszenia
+wskazują jedno zadanie. Każde niesie `status`, `statusLabel`, autora i `canManage`.
+
+### Kiedy proponować zmianę statusu
+
+- **Start zadania**, a zgłoszenie ma `nowe` → zaproponuj „w trakcie". Autor zgłoszenia
+  widzi wtedy, że ktoś się tym zajął.
+- **Zamknięcie albo oddanie do weryfikacji** → zaproponuj „rozwiązane".
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"status":"rozwiazane"}' \
+  "$BASE/api/v1/integrations/bug-reports/12"
+```
+
+**Zawsze pytaj, nigdy sam.** Domknięcie zgłoszenia wysyła powiadomienie do osoby,
+która je zgłosiła — inaczej niż start zadania, to nie jest ruch po cichu. Przy kilku
+zgłoszeniach naraz zapytaj o wszystkie jednym pytaniem, nie po kolei.
+
+`canManage` na `false` → powiedz, że statusami zgłoszeń zarządza ten, kto je
+rozpatruje, i **nie próbuj**. Zadanie idzie swoim torem, zgłoszenie zostaje.
+
+Uzasadnienia nie dopisuj z własnej inicjatywy. Puste zostawia notatkę, którą
+rozpatrujący wpisał wcześniej w module; wysłane — nadpisuje ją.
+
+### Odrzucenie i duplikat
+
+Na wyraźną prośbę: `{"status":"odrzucone","resolutionNote":"..."}` — tu uzasadnienie
+jest na miejscu, bo autor zgłoszenia dowie się, dlaczego. Duplikat wymaga wskazania
+zgłoszenia głównego: `{"status":"duplikat","duplicateOfId":8}`. Numer znajdź, zamiast
+zgadywać:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/bug-reports?status=nowe"
+```
+
+Sam z siebie nie proponuj ani odrzucenia, ani duplikatu — obie decyzje wymagają
+porównania z resztą zgłoszeń, a Ty widzisz tylko wycinek.
+
+### Powiązanie ze zgłoszeniem
+
+Zadanie da się przypiąć do zgłoszenia (i odpiąć):
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"taskId":1841}' \
+  "$BASE/api/v1/integrations/bug-reports/12"
+```
+
+`{"taskId":null}` odpina. Przydaje się, gdy zadanie powstało z rozmowy, a dopiero
+potem okazało się, że dotyczy zgłoszonego błędu. Zgłoszenia bez zadania znajdziesz
+przez `?unlinked=1`.
+
+Pokaż jedno i drugie — zgłoszenie i zadanie — i zapytaj, zanim zwiążesz. Powiązanie
+stempluje zadanie jako pochodzące ze zgłoszenia, więc widać je potem w TMS.
+
+Status i powiązanie to dwie osobne decyzje: nie załatwiaj obu jednym pytaniem.
+
 ## Blokady
 
 Zadanie potrafi czekać na inne — przez punkt checklisty z przypiętym cudzym
@@ -805,6 +876,7 @@ Nie zmieniasz nazwy, projektu ani puli istniejącego zadania — to się robi w 
 Termin i wykonawcę zmieniasz na prośbę (patrz „Termin i wykonawca"), nie z własnej
 inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
+Nie zamykasz zgłoszeń błędów z własnej inicjatywy — proponujesz, decyduje człowiek.
 Nie przeglądasz repozytorium ani kodu na potrzeby stanu zadań — TMS mówi, co
 zrobione i co czeka; jeśli trzeba zajrzeć w kod, to osobna robota, nie ta wtyczka.
 Nie wysyłasz do TMS treści, których nie było w bloku, który człowiek zatwierdził.
