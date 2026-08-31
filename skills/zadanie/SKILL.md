@@ -807,6 +807,18 @@ resztę pisz po ludzku.
 
 Po zapisie pokaż krótko, co wpisałeś, i link do zadania.
 
+**Zanim zapytasz o oddanie, odczytaj zadanie** — `canSelfComplete` przychodzi
+wyłącznie z odczytu, samo założenie zwraca goły numer:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?taskId=1721"
+```
+
+Bez tego kroku nie wiesz, czy zadanie ma w ogóle kogoś, kto je sprawdzi. Zadanie
+własne bez recenzenta oddane „do weryfikacji" ląduje na liście recenzji u tego,
+kto je zlecił — czyli u autora roboty. Kierownik projektu tej listy nie widzi,
+więc zadanie utyka tam, gdzie nikt go nie szuka.
+
 Osobno, na prośbę („dopisz materiały do 1654"): znajdź zadanie jak przy zmianie
 statusu i zapisz. Działa na każdym zadaniu, w którym właściciel klucza jest
 wykonawcą — także zleconym mu wcześniej przez kogoś innego.
@@ -821,19 +833,26 @@ Odmowy:
 
 ### Oddanie po materiałach
 
-Tu się zatrzymujesz i pytasz. Podpowiedz właściwe wyjście, patrząc na
-`canSelfComplete` zadania:
+Tu się zatrzymujesz i pytasz. Wyjście podpowiada `canSelfComplete` odczytany
+przed chwilą — nie zgaduj go i nie pytaj z góry o weryfikację.
+
+`true` (zadanie własne, bez cudzego recenzenta) — nikt tego nie sprawdza, więc
+jedyne sensowne wyjście to zamknięcie:
 
 ```
 Zadanie 1721 założone, materiały wpisane.
 https://tms.example.pl/tasks/1721
 
+Zamknąć? [zakończone / jeszcze nie]
+```
+
+`false` — czeka na kogoś i dopiero wtedy:
+
+```
 Oddać? [do weryfikacji / jeszcze nie]
 ```
 
-Gdy `canSelfComplete` jest `true` — zamiast „do weryfikacji" proponuj
-„zakończone", bo zadanie jest własne i nikt go nie sprawdza. `jeszcze nie` →
-zostaje `in_progress`, temat zamknięty.
+`jeszcze nie` → zostaje `in_progress`, temat zamknięty.
 
 Po oddaniu potwierdź jednym zdaniem — **z linkiem**, bo to ostatnia rzecz, jaką
 człowiek widzi z całej roboty, i często jedyna, do której wraca:
