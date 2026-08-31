@@ -113,19 +113,27 @@ zniknąć w zbiorczym zdaniu. Nazwy stanów czytasz ze `status` — `completed`
 (zatwierdzone), `to_verify` (czeka na weryfikację), `rework_needed` (wróciło do
 poprawy); cokolwiek innego nazywasz `statusLabel` tak, jak przyszło.
 
+Piszesz dla zwykłego człowieka, nie dla programisty. **Nazwy plików, funkcji,
+bibliotek i mechanizmów zostawiasz w zadaniu** — w raporcie stoi skutek, który widać
+z zewnątrz. „Kursy walut pokazywały wczorajszy odczyt, teraz są świeże" zamiast
+„godzinny cache w route.ts oddawał przeterminowaną wartość". Materiały bywają pisane
+technicznie, bo pisał je wykonawca dla siebie; Twoim zadaniem jest je przetłumaczyć,
+nie przepisać. Robota, której skutku nie da się opisać po ludzku, wchodzi do raportu
+samą nazwą.
+
 Objętość rośnie wolniej niż liczba zadań: **dzień to trzy–pięć zdań, tydzień akapit,
-miesiąc dwa akapity.** Na końcu jedna linijka z liczbą zadań.
+miesiąc dwa akapity.** Liczby zadań nie podajesz — nikt jej nie potrzebuje, a raport
+przez nią wygląda jak rozliczenie.
 
 ```
 Dzień poszedł prawie w całości na wtyczkę do TMS: doszła zmiana nazwy i priorytetu
 zadania, powrót z „Czeka" jednym ruchem, rozdawanie niczyich zadań z uwzględnieniem
 blokad i raport wykonanej roboty z zapisem do dziennika — każde wydanie z bliźniaczą
-zmianą po stronie TMS. Poza tym drobiazgi w WMS: kursy NBP przestały wracać
-z pamięci podręcznej, flagi przy wersji angielskiej liczą się same, mapa poprawiona.
+zmianą po stronie TMS. Poza tym drobiazgi w WMS: kursy walut pokazują już dzisiejszy
+odczyt zamiast wczorajszego, flagi przy wersji angielskiej dobierają się same, mapa
+poprawiona.
 W OMS domknięte atrybuty amazonowe oferty — kod kreskowy należy do oferty, nie do
 produktu. Adres zdjęcia produktu dla OMS czeka na weryfikację.
-
-Razem 22 zadania.
 ```
 
 Przy okresie dłuższym niż dzień powiedz w pierwszym zdaniu, jaki zakres wziąłeś —
@@ -137,14 +145,13 @@ zwykle lepiej czyta się okres opisany jako całość.
 ### Kilka osób
 
 Pytanie o kilka osób to osobne zapytanie na osobę — `personId` przyjmuje jedną.
-Każda dostaje własny nagłówek z imieniem i liczbą zadań, a pod nim swoją prozę.
-Nie mieszaj ludzi w jednym akapicie, nawet gdy robili to samo zadanie.
+Każda dostaje własny nagłówek z imieniem, a pod nim swoją prozę. Nie mieszaj ludzi w jednym akapicie, nawet gdy robili to samo zadanie.
 
 ```
-Piotr — 22 zadania
+Piotr
 Dzień poszedł na wtyczkę do TMS: …
 
-Daniel — 3 zadania
+Daniel
 Poprawki w magazynie: …
 ```
 
@@ -228,7 +235,7 @@ sortuje się sama i daje się dopasować bez zgadywania.
 
 ```html
 <h2>2026-08-31</h2>
-<p>Dzień poszedł prawie w całości na wtyczkę do TMS: doszła zmiana nazwy i priorytetu zadania, powrót z „Czeka" jednym ruchem oraz raport wykonanej roboty. Poza tym drobiazgi w WMS — kursy NBP przestały wracać z pamięci podręcznej. Adres zdjęcia produktu dla OMS czeka na weryfikację.</p>
+<p>Dzień poszedł prawie w całości na wtyczkę do TMS: doszła zmiana nazwy i priorytetu zadania, powrót z „Czeka" jednym ruchem oraz raport wykonanej roboty. Poza tym drobiazgi w WMS — kursy walut pokazują już dzisiejszy odczyt. Adres zdjęcia produktu dla OMS czeka na weryfikację.</p>
 ```
 
 Gdy raport obejmował kilka osób, każda dostaje w sekcji własny akapit poprzedzony
