@@ -218,7 +218,7 @@ curl -s -w '\n%{http_code}' -X PATCH \
   --data-binary @/tmp/tresc.json "$BASE/api/v1/integrations/documents/12"
 ```
 
-Po zapisie powiedz, co doszło, i podaj link do dokumentu (`$BASE/documents/<slug>`).
+Po zapisie powiedz, co doszło, i podaj link do dokumentu (`$BASE/dokumenty/<slug>`).
 
 ### Limit treści
 
