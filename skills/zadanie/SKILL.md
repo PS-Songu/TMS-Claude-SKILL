@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „rozdziel niczyje zadania", „kto co bierze", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł".
 ---
 
 # Zadania w TMS
@@ -451,6 +451,69 @@ tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie widzi.
 **Stan czytasz z TMS, nie z pliku w repozytorium.** Tablica w `BOARD.md` czy innym
 pliku bywa nieaktualna i nie jest drugim źródłem prawdy — jeśli rozjeżdża się z TMS,
 powiedz to, ale nie synchronizuj jej sam.
+
+## Rozdanie niczyich zadań
+
+„Rozdziel niczyje z OMS między mnie, Wojtka i Daniela", „kto co bierze z tej puli" —
+gdy nad projektem siedzi kilka osób, a część zadań nie ma wykonawcy.
+
+**Osoby bierzesz z rozmowy, nie z projektu.** Nie zgaduj, kto akurat pracuje nad
+tematem — padły trzy imiona, dzielisz między te trzy. Nikogo nie dokładasz od siebie.
+Imiona zamień na numery ze słownika; kogoś, kogo tam nie ma, zgłoś zamiast pomijać
+po cichu.
+
+Zacznij od jednego zapytania — z blokadami, bo bez nich podzieliłbyś na ślepo:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" \
+  "$BASE/api/v1/integrations/tasks?projectId=7&status=not_started&withBlockers=1&limit=100"
+```
+
+`withBlockers=1` dokłada przy każdym zadaniu `blockedBy` — numery zadań, na które
+ono czeka. **Niczyje poznajesz po pustym `assignees`.**
+
+Jak dzielić, po kolei:
+
+1. **Łańcuch blokad trzymaj w całości.** Zadanie i to, na co czeka, idą do JEDNEJ
+   osoby. Rozbite między dwie znaczy, że ktoś siedzi bezczynnie, czekając na kolegę
+   przy własnej robocie. Łańcuch bywa dłuższy niż para — idź po `blockedBy`, dopóki
+   prowadzi dalej. Gdy bloker ma już wykonawcę, resztę łańcucha dawaj właśnie jemu.
+2. **Potem trzymaj razem jedną pulę.** Zadania z tej samej puli do tej samej osoby —
+   mniej przeskakiwania między tematami. To reguła słabsza od blokad: gdy się kłócą,
+   wygrywa łańcuch.
+3. **Resztę rozłóż równo co do liczby.** Nie patrzysz, kto ile ma już na głowie —
+   tego nie liczysz i nie udawaj, że wiesz.
+
+**Pokaż CAŁY podział i czekaj na „tak".** Jedno pytanie o wszystko, nie osobne
+o każde zadanie:
+
+```
+Niczyje w OMS: 7 zadań, 3 osoby
+
+Piotr    #1812 Eksport do BaseLinkera
+         #1815 Testy eksportu          ← czeka na #1812
+Wojtek   #1820, #1821  (oba z puli „11 — Obsługa klienta")
+Daniel   #1808, #1809, #1810  (pula „0 - fixy")
+
+#1815 idzie z #1812, bo bez niego nie ruszy.
+
+Rozdzielam? [tak / popraw / anuluj]
+```
+
+Przy każdej grupie dopisz **powód jednym zdaniem** tam, gdzie nie jest oczywisty —
+łańcuch blokad zawsze, wspólna pula gdy to ona zdecydowała. Linki do zadań pod spodem,
+jak przy zestawieniach.
+
+Po „tak" przypisujesz po kolei (`assigneeUserId`, patrz „Nazwa, termin i wykonawca")
+i meldujesz jednym zdaniem, co komu przypadło. Odmowa na którymś zadaniu nie
+przerywa reszty — dokończ i powiedz na końcu, co nie weszło i dlaczego.
+
+Czego NIE robisz:
+- nie rozdajesz bez potwierdzenia — każde przypisanie to powiadomienie u żywej osoby,
+- nie ruszasz zadań, które KTOŚ już ma; rozdajesz wyłącznie niczyje,
+- nie zgadujesz obciążenia („Wojtek ma dużo roboty") — nie masz tego skąd wiedzieć,
+- przy `canAssignToOthers` na `false` mówisz to od razu, ZANIM ułożysz podział;
+  wtedy jedyne, co możesz, to wziąć zadania na siebie.
 
 ## Treść zadania: opis, zdjęcia, załączniki
 
