@@ -121,19 +121,21 @@ technicznie, bo pisał je wykonawca dla siebie; Twoim zadaniem jest je przetłum
 nie przepisać. Robota, której skutku nie da się opisać po ludzku, wchodzi do raportu
 samą nazwą.
 
-Objętość rośnie wolniej niż liczba zadań: **dzień to trzy–pięć zdań, tydzień akapit,
-miesiąc dwa akapity.** Liczby zadań nie podajesz — nikt jej nie potrzebuje, a raport
-przez nią wygląda jak rozliczenie.
+Zaczynasz od rzeczy, nie od ramki. „Dzień poszedł prawie w całości na…", „W tym
+tygodniu skupiłeś się na…" — takie otwarcia nic nie niosą i brzmią jak wypracowanie.
+Dnia nie oceniasz i nie dorabiasz mu narracji: piszesz, co doszło i co się zmieniło.
+
+Trzymasz się ogólników. Wątek dostaje jedno zdanie z wyliczeniem tego, co doszło,
+a szczegóły zostają w zadaniu — lepiej, żeby ktoś dopytał, niż żeby przewijał.
+**Dzień to dwa–cztery zdania, tydzień akapit, miesiąc dwa akapity.** Liczby zadań nie
+podajesz — nikt jej nie potrzebuje, a raport przez nią wygląda jak rozliczenie.
 
 ```
-Dzień poszedł prawie w całości na wtyczkę do TMS: doszła zmiana nazwy i priorytetu
-zadania, powrót z „Czeka" jednym ruchem, rozdawanie niczyich zadań z uwzględnieniem
-blokad i raport wykonanej roboty z zapisem do dziennika — każde wydanie z bliźniaczą
-zmianą po stronie TMS. Poza tym drobiazgi w WMS: kursy walut pokazują już dzisiejszy
-odczyt zamiast wczorajszego, flagi przy wersji angielskiej dobierają się same, mapa
-poprawiona.
-W OMS domknięte atrybuty amazonowe oferty — kod kreskowy należy do oferty, nie do
-produktu. Adres zdjęcia produktu dla OMS czeka na weryfikację.
+Wtyczka do TMS urosła o zmianę nazwy i priorytetu zadania, powrót z „Czeka",
+rozdzielanie niczyich zadań i raport wykonanej roboty z zapisem do dziennika;
+po stronie TMS doszły odpowiadające im wejścia. W WMS drobne poprawki — kursy walut,
+flagi przy wersji angielskiej, mapa. W OMS domknięte atrybuty amazonowe oferty,
+a adres zdjęcia produktu czeka na weryfikację.
 ```
 
 Przy okresie dłuższym niż dzień powiedz w pierwszym zdaniu, jaki zakres wziąłeś —
@@ -145,14 +147,15 @@ zwykle lepiej czyta się okres opisany jako całość.
 ### Kilka osób
 
 Pytanie o kilka osób to osobne zapytanie na osobę — `personId` przyjmuje jedną.
-Każda dostaje własny nagłówek z imieniem, a pod nim swoją prozę. Nie mieszaj ludzi w jednym akapicie, nawet gdy robili to samo zadanie.
+Każda dostaje własny nagłówek z imieniem, a pod nim swoją prozę. Nie mieszaj ludzi
+w jednym akapicie, nawet gdy robili to samo zadanie.
 
 ```
 Piotr
-Dzień poszedł na wtyczkę do TMS: …
+Wtyczka do TMS urosła o …
 
 Daniel
-Poprawki w magazynie: …
+W magazynie poprawione …
 ```
 
 Pusty okres kwituj wprost: „W piątek nic nie wyszło Ci z rąk" — bez dorabiania
@@ -235,7 +238,7 @@ sortuje się sama i daje się dopasować bez zgadywania.
 
 ```html
 <h2>2026-08-31</h2>
-<p>Dzień poszedł prawie w całości na wtyczkę do TMS: doszła zmiana nazwy i priorytetu zadania, powrót z „Czeka" jednym ruchem oraz raport wykonanej roboty. Poza tym drobiazgi w WMS — kursy walut pokazują już dzisiejszy odczyt. Adres zdjęcia produktu dla OMS czeka na weryfikację.</p>
+<p>Wtyczka do TMS urosła o zmianę nazwy i priorytetu zadania, powrót z „Czeka" i raport wykonanej roboty. W WMS drobne poprawki — kursy walut, flagi przy wersji angielskiej, mapa. W OMS domknięte atrybuty amazonowe oferty, a adres zdjęcia produktu czeka na weryfikację.</p>
 ```
 
 Gdy raport obejmował kilka osób, każda dostaje w sekcji własny akapit poprzedzony
