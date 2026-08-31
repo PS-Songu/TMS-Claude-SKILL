@@ -657,9 +657,12 @@ Granice doby liczy wtyczka, w czasie warszawskim, i wysyła pełne znaczniki ISO
 GET {baseUrl}/api/v1/integrations/tasks
     ?doneFrom=2026-08-31T00:00:00+02:00
     &doneTo=2026-08-31T23:59:59+02:00
-    &assignedToUserId=7
+    &personId=7
     &limit=300
 ```
+
+`personId` to „czyja robota" liczona **per osoba**, a nie filtr po głównym
+wykonawcy — patrz „Poprawka po Części I" na końcu planu.
 
 Osobę bierz ze słownika (`GET /api/v1/integrations/dictionary`, lista osób).
 Gdy słownik pokazuje tylko właściciela klucza, a pytanie dotyczy kogoś innego —
@@ -774,6 +777,26 @@ opisującymi, co weszło (dwa PR-y w TMS i wydanie wtyczki).
 Część I i II są od siebie niezależne — można je robić równolegle, ale **na osobnych
 gałęziach**. Część III wymaga obu scalonych i wdrożonych na produkcję; bez nich
 wtyczka dostanie 400 na nieznanych parametrach.
+
+## Poprawka po Części I — liczenie per osoba
+
+Ustalone przy wdrożeniu, 2026-08-31. Plan zakładał filtr `assignedToUserId`, który
+w TMS wskazuje **głównego wykonawcę** (`tasks.assigned_to_user_id`). Tymczasem
+zadanie może mieć wielu wykonawców: `task_assignees` trzyma dla każdego własny
+pod-stan, własne znaczniki czasu (`submitted_for_review_at`, `verified_at`)
+i własne materiały. Filtr po głównym wykonawcy gubiłby więc robotę osoby dopisanej
+do zadania współdzielonego, a specyfikacja mówi wprost: „wyszło **jej** z rąk".
+
+Dlatego:
+
+- `assignedToUserId` **zostaje nietknięty** — jego semantyka należy do interfejsu.
+- Doszedł osobny filtr `doneByUserId`, liczony przez `EXISTS` po `task_assignees`,
+  z kotwicą czasu **tej osoby**. Zakres `doneFrom`/`doneTo` musi liczyć się po tej
+  samej kotwicy co filtr osoby — inaczej do raportu wpadną zadania, w których
+  w naszym okresie oddał ktoś inny.
+- W API parametrem jest `personId` (mapowany na `doneByUserId`).
+- `doneAt` i `materialsExcerpt` też są brane per osoba; gdy osoba nie wpisała
+  własnych materiałów, lepiej zwrócić `null` niż podstawić cudze.
 
 Po tym wszystkim wracamy do czterech rzeczy z backlogu: komentarz do istniejącego
 zadania, załączniki z dysku, numer PR-a w materiałach i relacje blokad. Uwaga na
