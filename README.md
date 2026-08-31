@@ -143,6 +143,27 @@ już ktoś nie zgłosił. Jeśli znajdzie coś podobnego — również zamknięt
 cudzego — pokaże je i zapyta, czy to ta sama sprawa. Decyzja zawsze należy do
 Ciebie; czasem podobne zadanie to celowo osobny temat.
 
+## Raport wykonanej roboty
+
+Zamiast klikać po TMS i przepisywać tytuły, wystarczy zapytać — „co dziś zrobione",
+„podsumuj mi ten tydzień", „co Wojtek zrobił wczoraj". Claude zbiera zadania z TMS
+i składa z nich podsumowanie: po dniach, w dniu po projektach, z godziną, stanem
+zadania i jednym zdaniem o tym, co w nim zrobiono.
+
+Liczy się **wyłącznie robota domknięta** — zadania oddane do weryfikacji albo
+zamknięte w podanym okresie. Zadania założone, zaczęte i stojące w toku do raportu
+nie wchodzą; raport pokazuje wyniki, a nie sam ruch na tablicy. Zadanie zostaje
+w tym dniu, w którym wyszło z rąk, nawet jeśli ktoś zatwierdził je tydzień później.
+
+Raport można też kazać zapisać — „zapisz to do dziennika". Wtedy trafia do dokumentu
+„Dziennik pracy — Imię Nazwisko" w module dokumentów TMS, jedna sekcja na dzień,
+najnowsze na górze. Powtórna prośba o ten sam dzień nadpisuje sekcję, zamiast
+dokładać drugą, więc dziennik nie zaczyna sobie przeczyć.
+
+Raport o cudzej robocie pokazuje tylko to, co widać z Twojego konta — zadania własne,
+zlecone przez Ciebie i te z projektów, w których jesteś. Claude mówi o tym wprost,
+zamiast udawać komplet.
+
 ## Instalacja
 
 ### 1. Klucz
