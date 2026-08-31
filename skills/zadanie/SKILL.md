@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -434,9 +434,19 @@ Wyszukiwanie daje tytuł, status i wykonawców — nie treść. Po opis sięgasz
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/description"
 ```
 
-Wraca `{taskId, title, html, imagesInDescription}`. `html` to opis tak, jak trzyma go
-edytor. `imagesInDescription` mówi, ile zdjęć siedzi w środku — **samych obrazów w tym
-polu nie ma**, bo w TMS zdjęcie wklejone do opisu jest zwykłym załącznikiem zadania.
+Wraca `{taskId, title, html, imagesInDescription, images}`. `html` to opis tak, jak
+trzyma go edytor, a `images` to zdjęcia w nim wklejone — każde z `name` i `path`.
+
+Zdjęcie wklejone do edytora **nie jest załącznikiem zadania**: nie ma go na liście
+załączników i nie szukaj go tam. Pobierasz je ścieżką z `path` (doklej `$BASE`):
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" -o /tmp/zrzut.png \
+  "$BASE/api/v1/integrations/tasks/1503/images/a7e1a5c1-....png"
+```
+
+Potem otwierasz plik jak każdy inny — patrz „Zawartość" niżej. Adres z samego `html`
+(`/api/v1/editor-images/…`) tędy nie zadziała, bo chce sesji przeglądarki; bierz `path`.
 
 Co doczepione:
 
@@ -445,7 +455,7 @@ curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/
 ```
 
 Lista `{id, fileName, mimeType, sizeBytes, kind, uploadedByName, uploadedAt, readable}`.
-`kind` to `task` (załącznik zadania, w tym obrazy z opisu) albo `verification` (dowód
+`kind` to `task` (kontekst zadania: brief, instrukcja) albo `verification` (dowód
 pracy) — zawęzisz przez `?kind=task`. `readable: false` znaczy, że plik przekracza limit
 25 MB; powiedz to zamiast próbować go ściągać.
 
@@ -520,8 +530,11 @@ curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/
 ```
 
 Wracają `total` i ostatnie wpisy (domyślnie 30, `limit` do 100), od najstarszego:
-`author`, `createdAt`, `html`, `replyToAuthor`. Gdy `total` jest większe niż to, co
-dostałeś, powiedz o tym — „ostatnie 30 z 54" — zamiast udawać, że widziałeś całość.
+`author`, `createdAt`, `html`, `replyToAuthor`, `images`. Gdy `total` jest większe niż
+to, co dostałeś, powiedz o tym — „ostatnie 30 z 54" — zamiast udawać, że widziałeś całość.
+
+`images` to zdjęcia wklejone do komentarza, pobierane tak samo jak te z opisu. Zrzut
+w komentarzu zwykle NIESIE sedno („o, tu się sypie") — obejrzyj go, zanim streścisz wątek.
 
 Streszczaj, nie przepisuj. Człowiek pyta „co tam ustalili", nie „przeczytaj mi wątek".
 
@@ -843,6 +856,23 @@ więc zadanie utyka tam, gdzie nikt go nie szuka.
 Osobno, na prośbę („dopisz materiały do 1654"): znajdź zadanie jak przy zmianie
 statusu i zapisz. Działa na każdym zadaniu, w którym właściciel klucza jest
 wykonawcą — także zleconym mu wcześniej przez kogoś innego.
+
+### Odczyt materiałów i uwag do poprawy
+
+To samo wejście czytane, nie pisane — po nie sięgasz, gdy masz **sprawdzić czyjąś
+robotę** albo **poprawić własną po uwagach**:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/materials"
+```
+
+Wraca `sections` (przy zadaniu wieloosobowym jedna na wykonawcę, z `author`), a w każdej
+`html`, `revisions` (kolejne tury poprawek, od najstarszej) i `reworkComment` — uwagi
+weryfikatora do TEJ osoby. Osobno `reworkReason`: uwagi przy odesłaniu całego zadania
+do poprawy. Wszędzie `images`, bo materiały pisze się tym samym edytorem co opis.
+
+Gdy zadanie wróciło **Do poprawy**, uwagi są pierwszą rzeczą do przeczytania — razem
+ze zrzutami. Zwykle to na nich widać, o co chodzi, a sam tekst mówi „patrz obrazek".
 
 Odmowy:
 - `409 task_not_started` — zadanie jeszcze nierozpoczęte, TMS nie pokazuje wtedy
