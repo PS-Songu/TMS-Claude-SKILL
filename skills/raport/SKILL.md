@@ -44,8 +44,9 @@ curl -s -H "Authorization: Bearer $KLUCZ" --get \
   "$BASE/api/v1/integrations/tasks"
 ```
 
-Wraca `{"data":{"tasks":[…]}}`. Poza tym, co znasz z zadań (`taskId`, `title`,
-`status`, `statusLabel`, `projectName`), każda pozycja niesie trzy pola raportowe:
+Wraca `{"data":{"tasks":[…]}}`. Poza tym, co znasz z zadań (`id` — numer zadania,
+`title`, `status`, `statusLabel`, `projectName`; `taskId` to nazwa parametru
+zapytania, nie pola w odpowiedzi), każda pozycja niesie trzy pola raportowe:
 `doneAt` — moment wyjścia roboty z rąk **tej osoby**, `materialsExcerpt` — początek
 jej materiałów do weryfikacji gołym tekstem albo `null`, oraz `reworked`.
 
@@ -64,7 +65,7 @@ poniedziałkiem, o którym myślał pytający.
 
 ### Osoba
 
-Domyślnie właściciel klucza — jego numer masz w `me` w słowniku, więc `personId`
+Domyślnie właściciel klucza — jego numer to `me.userId` ze słownika, więc `personId`
 podajesz zawsze, także przy raporcie o sobie. Kogoś innego rozpoznajesz po tym samym
 słowniku:
 
@@ -102,6 +103,12 @@ Znaczniki stanu biorą się ze `status`:
 - `completed` → *zatwierdzone*
 - `to_verify` → *czeka na weryfikację*
 - `rework_needed` → *wróciło do poprawy*
+
+Cokolwiek innego — podaj `statusLabel` tak, jak przyszło, i nie wymyślaj własnego
+określenia. Pamiętaj przy tym, że **status opisuje całe zadanie, a `doneAt`
+i materiały są liczone per osoba**: przy zadaniu współdzielonym pozycja pokaże stan
+całości, choćby ta jedna osoba miała swoją część dawno za sobą. Tak ma być, ale nie
+przedstawiaj tego jako stanu jej roboty.
 
 **Puste `materialsExcerpt` zostawia samą linijkę.** Niczego nie dopisujesz od siebie —
 ani z rozmowy, ani z tego, co pamiętasz o zadaniu. Brak materiałów to informacja,
@@ -146,7 +153,15 @@ nigdy z własnej inicjatywy, choćby raport wyszedł ładny.
 
 Dokument nazywa się `Dziennik pracy — Imię Nazwisko` i **należy do właściciela klucza,
 także gdy raport dotyczy kogoś innego** — piszesz do swojego dziennika, nie do
-cudzego. Imię i nazwisko do tytułu weź z `me` w słowniku, dokładnie tak, jak przyszły.
+cudzego.
+
+**Imienia i nazwiska do tytułu nie ma w `me`** — jest tam sam `userId` (plus
+`canAssignToOthers` i `canCreateProject`). Nazwisko znajdujesz w liście `users`,
+dopasowując po `me.userId`, i przepisujesz dokładnie tak, jak przyszło. Gdy
+dopasowania nie ma — bo klucz bez prawa przypisywania widzi w słowniku samego siebie
+w okrojonej postaci — **zapytaj człowieka, jak ma brzmieć tytuł**. Imienia z rozmowy
+nie bierzesz: dziennik założy się wtedy pod innym tytułem, a przy następnym raporcie
+powstanie drugi dokument zamiast nadpisania tego, który już jest.
 
 Kolejność jest zawsze ta sama: **szukaj po tytule → brak, to załóż → pobierz treść →
 złóż nową → zapisz.** Pominięcie odczytu kasuje wszystko, co w dzienniku było.
@@ -157,10 +172,17 @@ curl -s -H "Authorization: Bearer $KLUCZ" --get \
   "$BASE/api/v1/integrations/documents"
 ```
 
-Wraca `{"data":{"document":…}}`, a `null` znaczy, że dziennika jeszcze nie ma. Wtedy
-go zakładasz — tytuł jest tekstem pisanym dla ludzi, więc idzie **z pliku**, nie
-wpisany wprost w komendę (ogonki potrafią dojść jako krzaki, a odpowiedź i tak wygląda
-na sukces):
+Wraca `{"data":{"document":…}}`, a `null` znaczy, że dziennika jeszcze nie ma.
+
+**Gdy dziennik ma już części, piszesz do najwyższej.** Szukaj od góry: `(część 3)`,
+`(część 2)`, na końcu tytuł bez dopisku — i bierz pierwszy, który się znajdzie. Sam
+tytuł bez dopisku zawsze istnieje, więc pytany jako pierwszy trafiałby w część
+najstarszą i najpełniejszą, czyli dokładnie w tę, od której uciekliśmy. Nową część
+zakładasz dopiero wtedy, gdy najwyższa jest pełna (patrz „Limit treści").
+
+Dziennika nie ma w ogóle? Wtedy go zakładasz. Tytuł jest tekstem pisanym dla ludzi,
+więc idzie **z pliku**, nie wpisany wprost w komendę (ogonki potrafią dojść jako
+krzaki, a odpowiedź i tak wygląda na sukces):
 
 ```bash
 cat > /tmp/dziennik.json << 'JSON'
@@ -184,6 +206,10 @@ W `{"data":{"document":{…}}}` interesuje Cię `content` — cały dokument jak
 Sekcja dnia to nagłówek z samą datą, a pod nim pozycje w tym samym układzie co
 w raporcie. Znaczniki jak w opisach zadań: `<p>`, `<ul><li>`, `<strong>`, `<a href>`.
 
+**W dzienniku data jest zawsze zapisana jako `<h2>RRRR-MM-DD</h2>`** — niezależnie od
+tego, że raport dla człowieka mówi „Poniedziałek 31 sierpnia". Data w tym formacie
+sortuje się sama i daje się dopasować bez zgadywania.
+
 ```html
 <h2>2026-08-31</h2>
 <ul>
@@ -192,8 +218,16 @@ w raporcie. Znaczniki jak w opisach zadań: `<p>`, `<ul><li>`, `<strong>`, `<a h
 </ul>
 ```
 
-**Nowe dni idą na górę** — najświeższy pierwszy, żeby nie trzeba było przewijać do
-końca dokumentu.
+**Raport wielodniowy rozbijasz na dni: każdy dzień okresu dostaje własną sekcję**,
+osobno dopasowywaną i osobno nadpisywaną. Zapis tygodnia to pięć sekcji, a nie jedna
+pod datą początku okresu. Dzień bez zadań pomijasz — pustej sekcji nie zakładasz.
+
+### Kolejność sekcji
+
+**Sekcje stoją datami malejąco, a nową wstawiasz we właściwe miejsce** — nie zawsze na
+górę. Gdy w dzienniku są 31 i 25 sierpnia, a dopisujesz 28, ląduje ono **między nimi**.
+Na górę trafia tylko dzień świeższy od wszystkiego, co już jest. Raport uzupełniający
+za dzień sprzed tygodnia to normalna prośba, nie wyjątek.
 
 ### Nadpisywanie
 
@@ -201,6 +235,12 @@ końca dokumentu.
 następnego `<h2>` (albo do końca dokumentu).** Nie dokładasz drugiej sekcji pod tą
 samą datą — dwa wpisy z jednego dnia to dziennik, który kłamie, a człowiek dowie się
 o tym miesiąc później, czytając własną notatkę.
+
+Dopasowujesz **po samej dacie w treści nagłówka**, nie po dosłownym `<h2>2026-08-31</h2>`:
+nagłówek bywa zapisany z atrybutami, a dziennik mógł powstać wcześniej ręcznie w TMS.
+Gdy w dokumencie stoją nagłówki dni w innym formacie (np. „31 sierpnia 2026"),
+**powiedz o tym człowiekowi i zapytaj**, zamiast po cichu doklejać obok drugą sekcję
+w swoim formacie — inaczej dziennik dostanie dwa wpisy o jednym dniu.
 
 To nie jest wyjątek, tylko normalny bieg rzeczy: ktoś prosi o zapis po południu,
 a potem jeszcze raz wieczorem. Za drugim razem dzień ma być **jeden**, ten pełniejszy.
@@ -222,10 +262,15 @@ Po zapisie powiedz, co doszło, i podaj link do dokumentu (`$BASE/dokumenty/<slu
 
 ### Limit treści
 
-Dokument w TMS ma sufit **500 KB**. Gdy treść się do niego zbliża, nie dopisuj na
-siłę — załóż `Dziennik pracy — Imię Nazwisko (część 2)` i pisz tam, a człowiekowi
-powiedz, że dziennik przeszedł na kolejną część. Odbita `400` po wysłaniu całej treści
-znaczy to samo; nie ponawiaj jej w kółko.
+Dokument w TMS ma sufit **500 KB**. Progiem, na którym przechodzisz dalej, jest
+**450 KB treści** — zmierz ją po złożeniu, przed wysłaniem. Powyżej progu nie dopisuj
+na siłę: załóż kolejną część (`Dziennik pracy — Imię Nazwisko (część 2)`, potem
+`(część 3)` i tak dalej), zapisz dzień tam i powiedz człowiekowi, że dziennik przeszedł
+na następną część.
+
+Odbita `400` przy zapisie znaczy to samo — treść przekroczyła limit w walidacji — ale
+to ścieżka awaryjna, nie sposób na poznanie limitu. Załóż wtedy kolejną część zamiast
+ponawiać zapis w kółko.
 
 Odmowy:
 - `403` — właściciel klucza nie może zakładać dokumentów albo nie jest właścicielem
@@ -239,6 +284,5 @@ o której wiesz z tej sesji, i nie dopisuje niczego z pamięci — nawet gdy wie
 człowiek zrobił coś jeszcze. Robota bez zadania w TMS w raporcie nie istnieje; możesz
 najwyżej zaproponować założenie zadania (patrz skill `zadanie`).
 
-Nierozpoznane imię kwitujesz pytaniem, nie wyborem najbliższego pasującego. Pusty
-okres — zdaniem, że nic nie wyszło z rąk. Ani jedno, ani drugie nie jest błędem
-wartym tłumaczenia się.
+Nierozpoznane imię kwitujesz pytaniem, nie wyborem najbliższego pasującego. To nie
+jest błąd wart tłumaczenia się — po prostu brakuje Ci danych, żeby odpowiedzieć.
