@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł".
 ---
 
 # Zadania w TMS
@@ -314,10 +314,10 @@ Odmowy:
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
 
-## Termin i wykonawca
+## Nazwa, termin i wykonawca
 
-„Przesuń 1827 na piątek", „zleć to Wojtkowi", „oddaję to z powrotem do puli" —
-jedno wejście, bo w TMS to jedno okno edycji:
+„Przesuń 1827 na piątek", „zleć to Wojtkowi", „oddaję to z powrotem do puli",
+„popraw nazwę na …" — jedno wejście, bo w TMS to jedno okno edycji:
 
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
@@ -327,9 +327,33 @@ curl -s -w '\n%{http_code}' -X POST \
 ```
 
 Do wyboru, po jednym na raz albo razem:
+- `title` — nowa nazwa zadania (3–200 znaków),
 - `dueDate` — `"2026-09-04"` ustawia termin, `null` go zdejmuje,
 - `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
 - `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
+
+**Nazwę z polskimi znakami wysyłaj z pliku, nie w komendzie** — inaczej ogonki
+i cudzysłowy potrafią dojść jako krzaki, a zadanie zostaje z rozsypanym tytułem:
+
+```bash
+printf '%s' '{"title":"Poprawiona nazwa zadania"}' > /tmp/nazwa.json
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  --data-binary @/tmp/nazwa.json "$BASE/api/v1/integrations/tasks/1827/fields"
+```
+
+**Nową nazwę pokaż, zanim wyślesz** — obok starej, bo zmiana tytułu jest widoczna
+dla wszystkich i nie zostawia po sobie śladu, czym była wcześniej:
+
+```
+#1827  było: Poprawić eksport
+       ma być: Poprawić eksport zamówień do BaseLinkera
+
+Zmieniam? [tak / popraw / anuluj]
+```
+
+Sam z siebie nazw nie poprawiaj — nawet gdy widzisz literówkę albo tytuł niezgodny
+z tym, co ostatecznie weszło. Powiedz o tym i zaproponuj.
 
 **Datę zawsze pokaż jako konkretny dzień, zanim wyślesz.** „Piątek" bywa nie tym
 piątkiem, o którym myślisz — dzień tygodnia z datą rozwiewa to od razu: „termin na
@@ -340,16 +364,18 @@ i dostanie powiadomienie. Oddanie do puli i własny termin — bez ceregieli, to
 odwracalne.
 
 Odmowy:
-- `403 forbidden` — termin i wykonawcę zmienia ten, kto zadanie zlecił (albo lider
-  czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz je oddać do puli,
-  ale nie przestawić terminu — powiedz to i zaproponuj komentarz z prośbą.
+- `403 forbidden` — nazwę, termin i wykonawcę zmienia ten, kto zadanie zlecił (albo
+  lider czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz je oddać do puli,
+  ale nie przestawić terminu ani nazwy — powiedz to i zaproponuj komentarz z prośbą.
 - `403 assign_to_others_denied` — właściciel klucza nie ma prawa zlecać innym
   (`canAssignToOthers` w słowniku na `false`). Sprawdź to ZANIM zaproponujesz
   przepisanie, nie po odmowie.
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
-- `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli) albo puste.
+- `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli), puste albo nazwa
+  krótsza niż trzy znaki.
 
-Nazwy, projektu ani puli tędy nie zmieniasz — to się robi w TMS, patrząc na tablicę.
+Projektu ani puli tędy nie zmieniasz — przeniesienie zdejmuje zadanie z jednej
+tablicy i wiesza na drugiej, więc robi się to w TMS, patrząc na obie.
 
 ## Co do mnie przyszło
 
@@ -943,7 +969,7 @@ w poszukiwaniu „tego właściwego" PR-a.
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
 Nie zmieniasz nazwy, projektu ani puli istniejącego zadania — to się robi w TMS.
-Termin i wykonawcę zmieniasz na prośbę (patrz „Termin i wykonawca"), nie z własnej
+Nazwę, termin i wykonawcę zmieniasz na prośbę (patrz „Nazwa, termin i wykonawca"), nie z własnej
 inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie zamykasz zgłoszeń błędów z własnej inicjatywy — proponujesz, decyduje człowiek.
