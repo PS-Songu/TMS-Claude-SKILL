@@ -46,6 +46,34 @@ je przy czytaniu i NIE kasuj ich, gdyby przyszło Ci coś w nim zmieniać.
 W przykładach niżej `$KLUCZ` to `apiKey`, a `$BASE` to `baseUrl`. Podstaw je sam
 przy wywołaniu.
 
+## Treść ZAWSZE z pliku
+
+**Cokolwiek napisanego po polsku wysyłasz przez plik, nigdy wpisane wprost
+w komendę.** Tytuł, opis, materiały, komentarz, punkt checklisty, nazwa projektu —
+wszystko, co czyta potem człowiek.
+
+```bash
+cat > /tmp/tresc.json << 'JSON'
+{"title":"Poprawić eksport zamówień","description":"<p>Ogonki i „cudzysłowy” dochodzą całe.</p>"}
+JSON
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  --data-binary @/tmp/tresc.json "$BASE/api/v1/integrations/inbound/claude"
+```
+
+**Why:** ogonki i cudzysłowy wpisane prosto w komendę potrafią dojść jako krzaki —
+zależnie od powłoki i kodowania. Najgorsze jest to, że **wygląda to na sukces**:
+serwer odpowiada „przyjąłem", numer zadania wraca, a rozsypany tekst wychodzi
+dopiero wtedy, gdy ktoś na to spojrzy w TMS. Zdarzyło się naprawdę — tytuł zapisał
+się jako `obs?uga statusu ?Czeka?`.
+
+Wprost w komendzie (`-d '{...}'`) zostają **wyłącznie wartości techniczne**: statusy,
+daty, numery, `true`/`false`. Tam nie ma czego zepsuć.
+
+Heredoc musi być cytowany (`<< 'JSON'`), inaczej powłoka zje ukośniki i `$`.
+Po wysłaniu **sprawdź w odpowiedzi, jak zapisał się tekst** — jeśli widzisz krzaki
+zamiast ogonków, popraw od razu, zamiast meldować gotowe.
+
 ## Numer zadania ZAWSZE z linkiem
 
 **Ilekroć wymieniasz zadanie, dawaj link** — założone, ruszone, oddane, zablokowane,
@@ -113,7 +141,7 @@ zakładania zadania.
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"name":"Nazwa projektu","description":"<p>Po co ten projekt.</p>"}' \
+  --data-binary @/tmp/projekt.json \
   "$BASE/api/v1/integrations/projects"
 ```
 
@@ -253,10 +281,16 @@ Czekasz na odpowiedź. `popraw` → nanieś zmianę i pokaż blok jeszcze raz.
 
 ## Założenie
 
+Treść idzie z pliku (patrz „Treść ZAWSZE z pliku") — tak samo w każdym przykładzie
+niżej, gdzie widzisz `--data-binary`:
+
 ```bash
+cat > /tmp/zadanie.json << 'JSON'
+{"title":"Poprawić eksport zamówień","description":"<p>Co i dlaczego.</p>","priority":"high","projectName":"TMS ✅","poolName":"Zadania / błędy","assigneeName":"Jan Kowalski"}
+JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"title":"...","description":"...","priority":"high","projectName":"TMS","poolName":"Zadania / błędy","assigneeName":"Jan Kowalski"}' \
+  --data-binary @/tmp/zadanie.json \
   "$BASE/api/v1/integrations/inbound/claude"
 ```
 
@@ -293,7 +327,7 @@ Opis istniejącego zadania poprawiasz **tylko na wyraźną prośbę** („popraw
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"html":"<h3>...</h3><p>...</p>"}' \
+  --data-binary @/tmp/opis.json \
   "$BASE/api/v1/integrations/tasks/1766/description"
 ```
 
@@ -332,15 +366,18 @@ Do wyboru, po jednym na raz albo razem:
 - `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
 - `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
 
-**Nazwę z polskimi znakami wysyłaj z pliku, nie w komendzie** — inaczej ogonki
-i cudzysłowy potrafią dojść jako krzaki, a zadanie zostaje z rozsypanym tytułem:
+Nazwa to treść pisana dla ludzi, więc idzie z pliku (patrz „Treść ZAWSZE z pliku"):
 
 ```bash
-printf '%s' '{"title":"Poprawiona nazwa zadania"}' > /tmp/nazwa.json
+cat > /tmp/nazwa.json << 'JSON'
+{"title":"Poprawić eksport zamówień do BaseLinkera"}
+JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
   --data-binary @/tmp/nazwa.json "$BASE/api/v1/integrations/tasks/1827/fields"
 ```
+
+Sam termin czy wykonawca (bez nazwy) mogą iść wprost — to wartości techniczne.
 
 **Nową nazwę pokaż, zanim wyślesz** — obok starej, bo zmiana tytułu jest widoczna
 dla wszystkich i nie zostawia po sobie śladu, czym była wcześniej:
@@ -632,7 +669,7 @@ Streszczaj, nie przepisuj. Człowiek pyta „co tam ustalili", nie „przeczytaj
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"html":"<p>Poprawione, zostaje jeszcze eksport.</p>"}' \
+  --data-binary @/tmp/komentarz.json \
   "$BASE/api/v1/integrations/tasks/1721/comments"
 ```
 
@@ -876,7 +913,7 @@ Dopisanie punktów — całą listą naraz, nie po jednym:
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"items":[{"text":"Pierwszy punkt"},{"text":"Drugi punkt"}]}' \
+  --data-binary @/tmp/punkty.json \
   "$BASE/api/v1/integrations/tasks/1721/subtasks"
 ```
 
@@ -919,7 +956,7 @@ oddaniem się zatrzymujesz.
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  -d '{"html":"<p><strong>Co zrobione</strong></p><p>...</p>"}' \
+  --data-binary @/tmp/materialy.json \
   "$BASE/api/v1/integrations/tasks/1721/materials"
 ```
 
