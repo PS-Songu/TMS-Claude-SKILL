@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „załóż zadanie do puli", „niech ktoś to weźmie", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „rozdziel niczyje zadania", „kto co bierze", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „załóż zadanie do puli", „niech ktoś to weźmie", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „rozdziel niczyje zadania", „kto co bierze", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł", „podnieś priorytet", „to już nie jest pilne".
 ---
 
 # Zadania w TMS
@@ -370,7 +370,7 @@ Odmowy:
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
 
-## Nazwa, termin i wykonawca
+## Nazwa, priorytet, termin i wykonawca
 
 „Przesuń 1827 na piątek", „zleć to Wojtkowi", „oddaję to z powrotem do puli",
 „popraw nazwę na …" — jedno wejście, bo w TMS to jedno okno edycji:
@@ -384,9 +384,15 @@ curl -s -w '\n%{http_code}' -X POST \
 
 Do wyboru, po jednym na raz albo razem:
 - `title` — nowa nazwa zadania (3–200 znaków),
+- `priority` — `today` | `high` | `medium` | `low` | `do_not_touch`,
 - `dueDate` — `"2026-09-04"` ustawia termin, `null` go zdejmuje,
 - `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
 - `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
+
+**Priorytet mów po ludzku, wysyłaj po technicznemu.** „Podnieś 1827 na pilne" to
+`today`, „to już nie jest pilne" — zwykle `medium`, ale przy takim luźnym zdaniu
+upewnij się, na co ma zejść, zamiast wybierać za człowieka. Nazwy do rozmowy masz
+w słowniku (`priorities`); `do_not_touch` znaczy „nie ruszać", nie „najniższy".
 
 Nazwa to treść pisana dla ludzi, więc idzie z pliku (patrz „Treść ZAWSZE z pliku"):
 
@@ -423,15 +429,15 @@ i dostanie powiadomienie. Oddanie do puli i własny termin — bez ceregieli, to
 odwracalne.
 
 Odmowy:
-- `403 forbidden` — nazwę, termin i wykonawcę zmienia ten, kto zadanie zlecił (albo
+- `403 forbidden` — nazwę, priorytet, termin i wykonawcę zmienia ten, kto zlecił (albo
   lider czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz je oddać do puli,
   ale nie przestawić terminu ani nazwy — powiedz to i zaproponuj komentarz z prośbą.
 - `403 assign_to_others_denied` — właściciel klucza nie ma prawa zlecać innym
   (`canAssignToOthers` w słowniku na `false`). Sprawdź to ZANIM zaproponujesz
   przepisanie, nie po odmowie.
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
-- `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli), puste albo nazwa
-  krótsza niż trzy znaki.
+- `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli), puste, nazwa
+  krótsza niż trzy znaki albo priorytet spoza listy.
 
 Projektu ani puli tędy nie zmieniasz — przeniesienie zdejmuje zadanie z jednej
 tablicy i wiesza na drugiej, więc robi się to w TMS, patrząc na obie.
@@ -563,7 +569,7 @@ Przy każdej grupie dopisz **powód jednym zdaniem** tam, gdzie nie jest oczywis
 łańcuch blokad zawsze, wspólna pula gdy to ona zdecydowała. Linki do zadań pod spodem,
 jak przy zestawieniach.
 
-Po „tak" przypisujesz po kolei (`assigneeUserId`, patrz „Nazwa, termin i wykonawca")
+Po „tak" przypisujesz po kolei (`assigneeUserId`, patrz „Nazwa, priorytet, termin i wykonawca")
 i meldujesz jednym zdaniem, co komu przypadło. Odmowa na którymś zadaniu nie
 przerywa reszty — dokończ i powiedz na końcu, co nie weszło i dlaczego.
 
@@ -1099,7 +1105,7 @@ w poszukiwaniu „tego właściwego" PR-a.
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
 Nie zmieniasz nazwy, projektu ani puli istniejącego zadania — to się robi w TMS.
-Nazwę, termin i wykonawcę zmieniasz na prośbę (patrz „Nazwa, termin i wykonawca"), nie z własnej
+Nazwę, termin i wykonawcę zmieniasz na prośbę (patrz „Nazwa, priorytet, termin i wykonawca"), nie z własnej
 inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie zamykasz zgłoszeń błędów z własnej inicjatywy — proponujesz, decyduje człowiek.
