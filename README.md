@@ -198,6 +198,36 @@ wersja. Gdy coś pobierze, dostaniesz powiadomienie z prośbą o `/reload-plugin
 albo nowa wersja wczyta się przy kolejnym uruchomieniu. Bieżąca rozmowa zawsze
 pracuje na tym, co miała w chwili startu, więc nic nie zmieni Ci się w trakcie.
 
+### Aktualizacja jedną komendą (bez klikania)
+
+Zamiast szukać przycisku odświeżania — jedna komenda w terminalu:
+
+```powershell
+claude plugin update tms@jf-tms
+```
+
+Wymaga zainstalowanego Claude Code jako program w terminalu. Jeśli terminal
+odpowiada `claude : The term 'claude' is not recognized`, to znaczy, że masz tylko
+rozszerzenie do edytora, a samego programu nie. Doinstalowanie, w PowerShellu:
+
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+Instalator kładzie plik w `%USERPROFILE%\.local\bin` i potrafi poprosić o ręczne
+dopisanie tego katalogu do PATH. Można to zrobić komendą — wystarczy raz:
+
+```powershell
+$bin = "$env:USERPROFILE\.local\bin"
+[Environment]::SetEnvironmentVariable("Path", ([Environment]::GetEnvironmentVariable("Path","User").TrimEnd(';') + ";" + $bin), "User")
+```
+
+Potem **otwórz nowy terminal** — stary wciąż pamięta poprzedni PATH.
+
+Sama aktualizacja podmienia pliki na dysku, ale rozmowa dalej pracuje na wersji
+wczytanej przy starcie. Żeby nowa weszła, zamknij i otwórz edytor i zacznij nową
+rozmowę.
+
 ### 4. Ustawienia
 
 Wszystko siedzi w jednym pliku: `%USERPROFILE%\.claude\tms.json` (na Macu i Linuksie
