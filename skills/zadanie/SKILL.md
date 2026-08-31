@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji" albo „zmień status zadania".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania".
 ---
 
 # Zadania w TMS
@@ -388,7 +388,7 @@ Pytanie „co zostało w OMS", „co wisi w puli Fixy", „na czym stanęliśmy"
 o tablicę, nie o jedno zadanie. Numery projektów i pul masz w słowniku — użyj ich:
 
 ```bash
-curl -s -H "Authorization: Bearer $KLUCZ"   "$BASE/api/v1/integrations/tasks?projectId=7&status=not_started,in_progress&limit=100"
+curl -s -H "Authorization: Bearer $KLUCZ"   "$BASE/api/v1/integrations/tasks?projectId=7&status=not_started,in_progress,waiting&limit=100"
 ```
 
 Do wyboru `projectId`, `poolId` (sama pula wystarczy — należy do jednego projektu),
@@ -404,10 +404,16 @@ Odpowiadaj stanem tablicy, nie surową listą:
 ```
 Projekt OMS — 14 zadań
 
-Zrobione     8
-W trakcie    2   #61 śledzenie przesyłek (Piotr), #58 raport dzienny (Wojtek)
-Czeka        4   w tym 2 bez wykonawcy
+Zrobione       8
+W trakcie      2   #61 śledzenie przesyłek (Piotr), #58 raport dzienny (Wojtek)
+Odstawione     1   #57 integracja z kurierem (Piotr) — status „Czeka"
+Nierozpoczęte  3   w tym 2 bez wykonawcy
 ```
+
+Status `waiting` („Czeka") to zadanie **odstawione** — ktoś je już miał i wstrzymał.
+To co innego niż `not_started`, które po prostu nie ruszyło. Nie zlepiaj obu
+w jedną kupkę „czeka" i nie podsuwaj odstawionych, gdy ktoś pyta „co następne" —
+one stoją z powodu, którego lista nie pokazuje.
 
 Przy zestawieniu takim jak wyżej linki wypisz pod spodem, po jednym na zadanie —
 w tabelce rozwaliłyby układ, ale zniknąć nie mogą.
@@ -680,8 +686,8 @@ Odmowy:
 ## Zmiana statusu
 
 Statusy w TMS: `not_started` (Nierozpoczęty), `in_progress` (W trakcie),
-`to_verify` (Do weryfikacji), `completed` (Zakończone), `rework_needed`
-(Do poprawy).
+`waiting` (Czeka), `to_verify` (Do weryfikacji), `completed` (Zakończone),
+`rework_needed` (Do poprawy).
 
 Najpierw ustal, o które zadanie chodzi. Numer podany wprost → pobierz je po
 `taskId`. Opis słowny („to o filtrach") → poszukaj przez `query` jak przy
@@ -710,9 +716,24 @@ Co z czym:
 - „zrobione", „skończone" → gdy `canSelfComplete` jest `true`, proponuj
   `completed`. Gdy `false`, zadanie czeka na czyjąś weryfikację — proponuj
   `to_verify` i powiedz dlaczego. **Czekaj na „tak"**, dopiero potem wysyłaj.
+- „to stoi", „czekam na Wojtka", „odstawiam to na potem" → `waiting`. Bez pytania
+  o zgodę, to odwracalne. Powiedz, że zadanie odstawione i **na co czeka** —
+  sam status tego nie niesie, a bez tego nikt nie wie, kiedy je wznowić.
+- „wracam do tego", „już mogę robić" → z `waiting` wychodzi się na `in_progress`
+  albo `not_started`. **W integracji trzeba wybrać jawnie**, bo TMS pamięta stan
+  sprzed odstawienia tylko dla przycisku w oknie zadania. Zadanie, przy którym już
+  siedziano, wraca na `in_progress`; odstawione przed rozpoczęciem — na
+  `not_started`. Nie wiesz który — zapytaj jednym zdaniem, zamiast zgadywać, że
+  ktoś nad nim pracował.
 - Zadanie w stanie `not_started` trzeba najpierw wystartować — TMS nie pozwoli
   oddać nierozpoczętego. Zrób oba kroki po kolei i wspomnij o tym jednym zdaniem,
   bo dla człowieka to jedna czynność.
+
+Czekanie bywa też **postawione przez TMS, nie przez człowieka**: gdy każdy
+nieodhaczony punkt checklisty ma blokadę, zadanie samo idzie na „Czeka" i samo
+wraca, gdy blokada zniknie. Zadanie na „Czeka" z zablokowanymi punktami sprawdź
+przez blokady (patrz wyżej) i powiedz, na co czeka — zamiast proponować, żeby
+je ręcznie wznowić, bo automat odstawi je z powrotem.
 
 Odmowy:
 - `403 forbidden_transition` — uprawnienia nie dają tego przejścia. Najczęściej:
