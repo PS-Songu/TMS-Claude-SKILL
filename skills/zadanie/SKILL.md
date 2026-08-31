@@ -758,12 +758,20 @@ Co z czym:
 - „to stoi", „czekam na Wojtka", „odstawiam to na potem" → `waiting`. Bez pytania
   o zgodę, to odwracalne. Powiedz, że zadanie odstawione i **na co czeka** —
   sam status tego nie niesie, a bez tego nikt nie wie, kiedy je wznowić.
-- „wracam do tego", „już mogę robić" → z `waiting` wychodzi się na `in_progress`
-  albo `not_started`. **W integracji trzeba wybrać jawnie**, bo TMS pamięta stan
-  sprzed odstawienia tylko dla przycisku w oknie zadania. Zadanie, przy którym już
-  siedziano, wraca na `in_progress`; odstawione przed rozpoczęciem — na
-  `not_started`. Nie wiesz który — zapytaj jednym zdaniem, zamiast zgadywać, że
-  ktoś nad nim pracował.
+- „wracam do tego", „już mogę robić" → **osobne wejście, bez podawania statusu**:
+
+  ```bash
+  curl -s -w '\n%{http_code}' -X POST \
+    -H "Authorization: Bearer $KLUCZ" \
+    "$BASE/api/v1/integrations/tasks/1721/resume"
+  ```
+
+  TMS sam wie, dokąd wrócić: zadanie odstawione w toku wraca w tok, odstawione
+  przed rozpoczęciem — do nierozpoczętego. **Nie ustawiaj statusu ręcznie** i nie
+  pytaj, na co wrócić — zgadywanie kończy się tym, że system twierdzi, że ktoś
+  zaczął robotę, której nikt nie tknął. Powiedz potem, w jakim stanie zadanie
+  wylądowało. `409 not_waiting` znaczy, że zadanie wcale nie stoi — sprawdź stan,
+  zanim powiesz, że coś poszło nie tak.
 - Zadanie w stanie `not_started` trzeba najpierw wystartować — TMS nie pozwoli
   oddać nierozpoczętego. Zrób oba kroki po kolei i wspomnij o tym jednym zdaniem,
   bo dla człowieka to jedna czynność.
