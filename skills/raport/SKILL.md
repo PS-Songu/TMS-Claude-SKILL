@@ -64,7 +64,9 @@ poniedziałkiem, o którym myślał pytający.
 
 ### Osoba
 
-Domyślnie właściciel klucza. Kogoś innego rozpoznajesz po słowniku:
+Domyślnie właściciel klucza — jego numer masz w `me` w słowniku, więc `personId`
+podajesz zawsze, także przy raporcie o sobie. Kogoś innego rozpoznajesz po tym samym
+słowniku:
 
 ```bash
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/dictionary"
@@ -93,6 +95,8 @@ okres. Milczenie zostawia człowieka z raportem, który wygląda na komplet.
 
 Dni malejąco, w dniu grupowanie po projekcie. Pozycja niesie numer zadania z linkiem,
 tytuł, godzinę, znacznik stanu i **jedno zdanie streszczone z `materialsExcerpt`**.
+Dzień i godzinę czytasz z `doneAt` — po warszawsku, tak samo jak liczyłeś granice
+okresu, inaczej wieczorna robota wyląduje w raporcie dnia następnego.
 
 Znaczniki stanu biorą się ze `status`:
 - `completed` → *zatwierdzone*

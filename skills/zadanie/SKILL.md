@@ -453,7 +453,8 @@ curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?view=
 
 Widoki i pytania, na które odpowiadają:
 - `mine_active` — „co mam do zrobienia", moje niezakończone.
-- `mine_done` — „co zrobiłem".
+- `mine_done` — „co zrobiłem". Pytanie o konkretny okres („co dziś zrobione",
+  „podsumuj mi tydzień") obsługuje skill `raport`, nie ten widok.
 - `to_verify` — „co czeka na MOJĄ ocenę", cudza robota oddana do sprawdzenia.
 - `awaiting` — „co oddałem i wisi" u kogoś do zatwierdzenia.
 - `delegated` — „co zleciłem innym".
