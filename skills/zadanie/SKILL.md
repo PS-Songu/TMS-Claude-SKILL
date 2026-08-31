@@ -1,6 +1,6 @@
 ---
 name: zadanie
-description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „rozdziel niczyje zadania", „kto co bierze", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł".
+description: Zadania i projekty w firmowym TMS — zakładanie zadań, materiały do weryfikacji, poprawa opisu, zmiana statusu i zakładanie projektów. Użyj po skończonej robocie, żeby zaproponować zadanie do TMS i opisać, co zrobione, oraz kiedy użytkownik prosi „załóż zadanie", „wrzuć to do TMS", „załóż zadanie do puli", „niech ktoś to weźmie", „dodaj task", „zrób z tego zadanie", „dopisz materiały", „popraw opis zadania", „sformatuj to zadanie", „załóż projekt", „odhacz punkt", „co zostało w zadaniu", „co zostało w projekcie", „co wisi w puli", „rozdziel niczyje zadania", „kto co bierze", „na czym stanęliśmy", „co następne", „czemu to stoi", „co blokuje to zadanie", „załóż zadanie z tego PR-a", „co jest na tym zdjęciu w zadaniu", „przeczytaj załącznik", „obejrzyj zrzut z zadania", „co pisali w uwagach", „czemu wróciło do poprawy", a także gdy mówi „zaczynam to", „biorę się za to", „oznacz jako zrobione", „oddaj do weryfikacji", „to stoi", „odstawiam to", „czekam na kogoś z tym", „wracam do tego" albo „zmień status zadania", „popraw nazwę zadania", „zmień tytuł".
 ---
 
 # Zadania w TMS
@@ -301,6 +301,28 @@ Pola: `title`, `description`, `priority` (`today` | `high` | `medium` | `low` |
 Odpowiedź `{"data":{"taskId":123,"created":true}}`. Zgłoś numer i link
 `$BASE/tasks/123` — jednym zdaniem, żeby dało się od razu zajrzeć i poprawić
 na miejscu.
+
+### Zadanie do puli, czyli niczyje
+
+„Załóż zadanie w OMS, ktoś to weźmie", „wrzuć do puli" — **pominięcie
+`assigneeName` NIE robi zadania niczyim**. TMS podpisuje wtedy właściciela klucza,
+tak samo jakby poprosił o zadanie dla siebie. Zadanie wygląda na wzięte, choć nikt
+go nie wziął, a Ty meldujesz sukces.
+
+Niczyje robi się drugim ruchem — oddaniem do puli, jak przyciskiem „Oddaj"
+w oknie zadania:
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"unassign":true}' \
+  "$BASE/api/v1/integrations/tasks/123/fields"
+```
+
+Zrób oba kroki po kolei i powiedz o tym jednym zdaniem — dla człowieka to jedna
+czynność („założone i leży w puli, bez wykonawcy"). Gdy oddanie odbije się odmową,
+powiedz wprost, że zadanie **zostało podpisane na Ciebie**; milczenie zostawiłoby
+je przypisane wbrew temu, o co prosił.
 
 Gdy zadanie powstało z roboty właśnie skończonej w tej rozmowie, nie kończysz na
 numerze — przechodzisz od razu do „Materiałów do weryfikacji" niżej.
