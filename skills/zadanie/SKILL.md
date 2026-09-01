@@ -663,8 +663,6 @@ Odmowy:
 - `413 file_too_large` — plik ponad 25 MB. Nie próbuj obejść.
 - `400 invalid_kind` — dozwolone są tylko `task` i `verification`.
 
-Plików do TMS **nie wysyłasz** — dodaje się je w przeglądarce.
-
 ### Wysłanie pliku
 
 Plik Z DYSKU — log, zrzut z testu, wygenerowany raport — dokładasz do zadania:
@@ -1126,7 +1124,7 @@ w poszukiwaniu „tego właściwego" PR-a.
 
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
-Nie zmieniasz nazwy, projektu ani puli istniejącego zadania — to się robi w TMS.
+Nie zmieniasz projektu ani puli istniejącego zadania — to się robi w TMS.
 Nazwę, termin i wykonawcę zmieniasz na prośbę (patrz „Nazwa, priorytet, termin i wykonawca"), nie z własnej
 inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
