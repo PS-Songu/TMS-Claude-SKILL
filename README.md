@@ -328,6 +328,11 @@ Numer wersji siedzi w czterech miejscach — podbij wszystkie naraz:
 
 Punkt 3 jest tym, co widzi użytkownik, więc rozjazd z resztą wprowadza w błąd.
 
+Poprawka do już wydanego numeru wymaga **nowego numeru**. Cache wtyczek jest
+kluczowany wersją: raz pobrany katalog `<wersja>` nie odświeża się nigdy, więc
+zmiana dopchnięta pod starym numerem nie dotrze do nikogo, kto go już ma. Dotyczy
+to także poprawki jednej linijki.
+
 ## Więcej
 
 Szczegóły ustaleń: [docs/2026-08-19-spec.md](docs/2026-08-19-spec.md)
