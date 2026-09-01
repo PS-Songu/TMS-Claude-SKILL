@@ -147,8 +147,9 @@ Ciebie; czasem podobne zadanie to celowo osobny temat.
 
 Zamiast klikać po TMS i przepisywać tytuły, wystarczy zapytać — „co dziś zrobione",
 „podsumuj mi ten tydzień", „co Wojtek zrobił wczoraj". Claude zbiera zadania z TMS
-i składa z nich podsumowanie: po dniach, w dniu po projektach, z godziną, stanem
-zadania i jednym zdaniem o tym, co w nim zrobiono.
+i pisze z nich kilka zdań o tym, co wyszło z rąk — bez numerów, linków i godzin,
+za to z tym, co w tej robocie było istotne. Zapytanie o kilka osób rozdziela na
+osobne akapity, każdy pod imieniem. Po numer konkretnego zadania wystarczy poprosić.
 
 Liczy się **wyłącznie robota domknięta** — zadania oddane do weryfikacji albo
 zamknięte w podanym okresie. Zadania założone, zaczęte i stojące w toku do raportu

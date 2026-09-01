@@ -23,8 +23,8 @@ liczysz; wybór robi serwer, Ty podajesz zakres i osobę.
 Kotwicą jest moment wyjścia z rąk, nie moment cudzej decyzji. **Zatwierdzenie przez
 kogoś innego dwa dni później nie tworzy drugiej pozycji ani nie przesuwa zadania na
 inny dzień** — robota oddana w piątek zostaje w piątku, choćby recenzent kliknął
-w poniedziałek. Zadanie z `reworked: true` wracało już do poprawy; dopisz przy nim
-„poprawka", bo bez tego dzień wygląda na obfitszy, niż był.
+w poniedziałek. Zadanie z `reworked: true` wracało już do poprawy; powiedz o tym w raporcie,
+bo bez tego dzień wygląda na obfitszy, niż był.
 
 Poza raportem zostają **zadania założone, zaczęte i stojące w toku**. To decyzja, nie
 przeoczenie: raport pokazuje wyniki, nie ruch. Gdy człowiek dziwi się, że dzień
@@ -94,57 +94,82 @@ okres. Milczenie zostawia człowieka z raportem, który wygląda na komplet.
 
 ## Jak wygląda raport
 
-Dni malejąco, w dniu grupowanie po projekcie. Pozycja niesie numer zadania z linkiem,
-tytuł, godzinę, znacznik stanu i **jedno zdanie streszczone z `materialsExcerpt`**.
-Dzień i godzinę czytasz z `doneAt` — po warszawsku, tak samo jak liczyłeś granice
-okresu, inaczej wieczorna robota wyląduje w raporcie dnia następnego.
+Raport to kilka zdań prozą — nie lista pozycji. Człowiek ma po nich wiedzieć, co
+wyszło z rąk i co z tego jest ważne, a nie przerabiać wzrokiem dwadzieścia linijek
+z numerami i godzinami.
 
-Znaczniki stanu biorą się ze `status`:
-- `completed` → *zatwierdzone*
-- `to_verify` → *czeka na weryfikację*
-- `rework_needed` → *wróciło do poprawy*
+**Bez numerów zadań, bez linków, bez godzin.** Nazwę zadania wplatasz w zdanie tylko
+wtedy, gdy sama coś znaczy; poza tym piszesz, co się zmieniło. Kto chce zajrzeć do
+konkretnego zadania, poprosi — wtedy podasz numer i link.
 
-Cokolwiek innego — podaj `statusLabel` tak, jak przyszło, i nie wymyślaj własnego
-określenia. Pamiętaj przy tym, że **status opisuje całe zadanie, a `doneAt`
-i materiały są liczone per osoba**: przy zadaniu współdzielonym pozycja pokaże stan
-całości, choćby ta jedna osoba miała swoją część dawno za sobą. Tak ma być, ale nie
-przedstawiaj tego jako stanu jej roboty.
+Rzeczy z jednego wątku łącz w jedno zdanie: osiem wydań wtyczki to nie osiem zdań,
+tylko jedno o tym, co wtyczka przez ten dzień dostała. Treść bierzesz
+z `materialsExcerpt` — to jedyne miejsce, gdzie stoi, co naprawdę zrobione. Zadanie
+bez materiałów wchodzi do raportu samą nazwą; niczego nie dopowiadasz.
 
-**Puste `materialsExcerpt` zostawia samą linijkę.** Niczego nie dopisujesz od siebie —
-ani z rozmowy, ani z tego, co pamiętasz o zadaniu. Brak materiałów to informacja,
-nie luka do zapełnienia.
+Wyróżnij to, co czytający musi wiedzieć: co czeka na weryfikację, co wróciło do
+poprawy (`reworked`), co jest cudzą decyzją, a nie jego robotą. Reszta ma prawo
+zniknąć w zbiorczym zdaniu. Nazwy stanów czytasz ze `status` — `completed`
+(zatwierdzone), `to_verify` (czeka na weryfikację), `rework_needed` (wróciło do
+poprawy); cokolwiek innego nazywasz `statusLabel` tak, jak przyszło.
+
+Piszesz dla zwykłego człowieka, nie dla programisty. **Nazwy plików, funkcji,
+bibliotek i mechanizmów zostawiasz w zadaniu** — w raporcie stoi skutek, który widać
+z zewnątrz. „Kursy walut pokazywały wczorajszy odczyt, teraz są świeże" zamiast
+„godzinny cache w route.ts oddawał przeterminowaną wartość". Materiały bywają pisane
+technicznie, bo pisał je wykonawca dla siebie; Twoim zadaniem jest je przetłumaczyć,
+nie przepisać. Robota, której skutku nie da się opisać po ludzku, wchodzi do raportu
+samą nazwą.
+
+Zaczynasz od rzeczy, nie od ramki. „Dzień poszedł prawie w całości na…", „W tym
+tygodniu skupiłeś się na…" — takie otwarcia nic nie niosą i brzmią jak wypracowanie.
+Dnia nie oceniasz i nie dorabiasz mu narracji: piszesz, co doszło i co się zmieniło.
+
+Trzymasz się ogólników. Wątek dostaje jedno zdanie z wyliczeniem tego, co doszło,
+a szczegóły zostają w zadaniu — lepiej, żeby ktoś dopytał, niż żeby przewijał.
+**Dzień to dwa–cztery zdania, tydzień akapit, miesiąc dwa akapity.** Liczby zadań nie
+podajesz — nikt jej nie potrzebuje, a raport przez nią wygląda jak rozliczenie.
 
 ```
-Poniedziałek 31 sierpnia — 2 zadania
-
-TMS
-  #1841  Poprawić eksport faktur — 16:42, czeka na weryfikację
-         Eksport bierze teraz numer z zamówienia, nie z faktury korygującej.
-         https://tms.example.pl/tasks/1841
-  #1838  Filtr terminów na liście zadań — 11:05, zatwierdzone (poprawka)
-         https://tms.example.pl/tasks/1838
-
-Piątek 28 sierpnia — 1 zadanie
-
-OMS
-  #1830  Śledzenie przesyłek — 17:20, zatwierdzone
-         Numer przesyłki bierze się z ostatniej paczki, nie z pierwszej.
-         https://tms.example.pl/tasks/1830
-
-Razem 3 zadania.
+Wtyczka do TMS urosła o zmianę nazwy i priorytetu zadania, powrót z „Czeka",
+rozdzielanie niczyich zadań i raport wykonanej roboty z zapisem do dziennika;
+po stronie TMS doszły odpowiadające im wejścia. W WMS drobne poprawki — kursy walut,
+flagi przy wersji angielskiej, mapa. W OMS domknięte atrybuty amazonowe oferty,
+a adres zdjęcia produktu czeka na weryfikację.
 ```
 
-Na końcu liczba zadań. Przy raporcie o **cudzej robocie** dołóż zdanie o niepełnym
-wglądzie — lista jest przycięta do tego, co widzi właściciel klucza: zadania własne,
-zlecone przez siebie i te z projektów, których jest członkiem:
+Przy okresie dłuższym niż dzień powiedz w pierwszym zdaniu, jaki zakres wziąłeś —
+„od poniedziałku" bywa nie tym poniedziałkiem, o którym myślał pytający. Dzień czytasz
+z `doneAt` po warszawsku, tak samo jak liczyłeś granice okresu — inaczej wieczorna
+robota wyląduje w dniu następnym. Dni dziel tylko wtedy, gdy to coś zmienia;
+zwykle lepiej czyta się okres opisany jako całość.
+
+### Kilka osób
+
+Pytanie o kilka osób to osobne zapytanie na osobę — `personId` przyjmuje jedną.
+Każda dostaje własny nagłówek z imieniem, a pod nim swoją prozę. Nie mieszaj ludzi
+w jednym akapicie, nawet gdy robili to samo zadanie.
+
+```
+Piotr
+Wtyczka do TMS urosła o …
+
+Daniel
+W magazynie poprawione …
+```
+
+Pusty okres kwituj wprost: „W piątek nic nie wyszło Ci z rąk" — bez dorabiania
+tłumaczeń, dlaczego tak. Przy kilku osobach człowiek bez domkniętej roboty też
+dostaje swoją linijkę; pominięcie go wygląda jak przeoczenie.
+
+Przy raporcie o **cudzej robocie** dołóż zdanie o niepełnym wglądzie — lista jest
+przycięta do tego, co widzi właściciel klucza: zadania własne, zlecone przez siebie
+i te z projektów, których jest członkiem:
 
 ```
 To tylko zadania widoczne z Twojego konta — własne, zlecone przez Ciebie
 i te z projektów, w których jesteś. Wojtek mógł zrobić więcej.
 ```
-
-Pusty okres kwituj wprost: „W piątek nic nie wyszło Ci z rąk" — bez dorabiania
-tłumaczeń, dlaczego tak.
 
 ## Dziennik
 
@@ -203,8 +228,9 @@ W `{"data":{"document":{…}}}` interesuje Cię `content` — cały dokument jak
 
 ### Kształt sekcji
 
-Sekcja dnia to nagłówek z samą datą, a pod nim pozycje w tym samym układzie co
-w raporcie. Znaczniki jak w opisach zadań: `<p>`, `<ul><li>`, `<strong>`, `<a href>`.
+Sekcja dnia to nagłówek z datą, a pod nim **ten sam tekst co w raporcie** — proza
+w `<p>`, bez list, numerów zadań i linków. Znaczniki jak w opisach zadań: `<p>`,
+`<strong>`.
 
 **W dzienniku data jest zawsze zapisana jako `<h2>RRRR-MM-DD</h2>`** — niezależnie od
 tego, że raport dla człowieka mówi „Poniedziałek 31 sierpnia". Data w tym formacie
@@ -212,11 +238,11 @@ sortuje się sama i daje się dopasować bez zgadywania.
 
 ```html
 <h2>2026-08-31</h2>
-<ul>
-  <li><a href="https://tms.example.pl/tasks/1841">#1841</a> Poprawić eksport faktur — TMS, 16:42, czeka na weryfikację. Eksport bierze numer z zamówienia, nie z faktury korygującej.</li>
-  <li><a href="https://tms.example.pl/tasks/1838">#1838</a> Filtr terminów na liście zadań — TMS, 11:05, zatwierdzone (poprawka).</li>
-</ul>
+<p>Wtyczka do TMS urosła o zmianę nazwy i priorytetu zadania, powrót z „Czeka" i raport wykonanej roboty. W WMS drobne poprawki — kursy walut, flagi przy wersji angielskiej, mapa. W OMS domknięte atrybuty amazonowe oferty, a adres zdjęcia produktu czeka na weryfikację.</p>
 ```
+
+Gdy raport obejmował kilka osób, każda dostaje w sekcji własny akapit poprzedzony
+`<p><strong>Imię</strong></p>` — tak jak w rozmowie.
 
 **Raport wielodniowy rozbijasz na dni: każdy dzień okresu dostaje własną sekcję**,
 osobno dopasowywaną i osobno nadpisywaną. Zapis tygodnia to pięć sekcji, a nie jedna
