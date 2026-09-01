@@ -267,8 +267,9 @@ Zasady składania:
   plików, funkcji i komend; to ma zrozumieć osoba, która nie siedziała w kodzie.
   W bloku pokazujesz go zwykłym tekstem, ale do TMS wysyłasz jako HTML — patrz
   „Formatowanie" wyżej. W bloku nie pokazujesz znaczników.
-- Priorytet: `na dziś` tylko gdy termin jest dzisiaj, `wysoki` gdy blokuje
-  kogoś lub psuje robotę na produkcji, inaczej `średni`.
+- Priorytet: `today` tylko gdy termin jest dzisiaj, `high` gdy blokuje kogoś
+  lub psuje robotę na produkcji, inaczej `medium`. W bloku pokazujesz etykietę
+  ze słownika, nie klucz — patrz „Priorytety" niżej.
 - Projekt: z mapy `projectByFolder`, gdy katalog rozmowy do niej pasuje (patrz
   „Ustawienia"). Nie pytaj wtedy o projekt — pokaż go w bloku, człowiek poprawi
   przez „popraw", jeśli tym razem chodzi o co innego.
@@ -389,10 +390,22 @@ Do wyboru, po jednym na raz albo razem:
 - `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
 - `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
 
-**Priorytet mów po ludzku, wysyłaj po technicznemu.** „Podnieś 1827 na pilne" to
-`today`, „to już nie jest pilne" — zwykle `medium`, ale przy takim luźnym zdaniu
-upewnij się, na co ma zejść, zamiast wybierać za człowieka. Nazwy do rozmowy masz
-w słowniku (`priorities`); `do_not_touch` znaczy „nie ruszać", nie „najniższy".
+### Priorytety
+
+**Klucz wysyłasz, etykietę mówisz — i etykiety nie bierzesz z pamięci.** Kluczy
+jest pięć i one się nie zmieniają: `today`, `high`, `medium`, `low`,
+`do_not_touch`. Nazwy widoczne dla ludzi bywają w TMS przemianowywane, więc
+**czytasz je ze słownika** (`priorities`) i tak samo je wypisujesz — w bloku
+propozycji, w pytaniu i w meldunku. Nazwa wpisana z pamięci rozjeżdża się z tym,
+co człowiek widzi u siebie na ekranie.
+
+„Podnieś 1827 na pilne" to `today`. „To już nie jest pilne" — zwykle `medium`,
+ale przy tak luźnym zdaniu upewnij się, na co ma zejść, zamiast wybierać za
+człowieka.
+
+`do_not_touch` stoi **poza skalą** — nie jest najniższym stopniem po `low`.
+Znaczy „tego nie ruszamy", cokolwiek akurat głosi jego etykieta. Nie proponuj go
+jako kolejnego kroku w dół; ustawiasz go wtedy, gdy człowiek powie to wprost.
 
 Nazwa to treść pisana dla ludzi, więc idzie z pliku (patrz „Treść ZAWSZE z pliku"):
 
