@@ -394,6 +394,10 @@ Do wyboru, po jednym na raz albo razem:
 upewnij się, na co ma zejść, zamiast wybierać za człowieka. Nazwy do rozmowy masz
 w słowniku (`priorities`); `do_not_touch` znaczy „nie ruszać", nie „najniższy".
 
+**Priorytet jest do zapisu, nie do odczytu.** Żaden odczyt zadań go nie zwraca —
+ani wyszukiwanie, ani `taskId`, ani widoki. Ustawiony przed chwilą też nie wróci.
+Jedyny sygnał pilności z API to `dueDate`.
+
 Nazwa to treść pisana dla ludzi, więc idzie z pliku (patrz „Treść ZAWSZE z pliku"):
 
 ```bash
@@ -491,6 +495,8 @@ W tym widoku są też **zadania bez wykonawcy** — czyli to, co dopiero czeka n
 podjęcie. Przy zwykłym wyszukiwaniu po słowach ich nie ma.
 
 Każde zadanie niesie `status`, `statusLabel`, `assignees`, `poolName` i `dueDate`.
+**Priorytetu tu nie ma** (patrz „Nazwa, priorytet, termin i wykonawca") — nie
+układaj listy „od najpilniejszych" i nie mów, że coś jest pilne, skoro tego nie widzisz.
 Odpowiadaj stanem tablicy, nie surową listą:
 
 ```
@@ -511,7 +517,9 @@ Przy zestawieniu takim jak wyżej linki wypisz pod spodem, po jednym na zadanie 
 w tabelce rozwaliłyby układ, ale zniknąć nie mogą.
 
 Gdy człowiek pyta „co następne", pokaż same czekające i zaproponuj jedno — nie
-wyliczaj wszystkiego. Pusty wynik znaczy tyle, że w JEGO zasięgu widoczności nic
+wyliczaj wszystkiego. Kolejność bierzesz z terminu i blokad, bo priorytetu
+nie dostajesz; przy wyborze powiedz, czym się kierowałeś, i dodaj, że priorytet
+widzi tylko człowiek w TMS. Pusty wynik znaczy tyle, że w JEGO zasięgu widoczności nic
 tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie widzi.
 
 **Stan czytasz z TMS, nie z pliku w repozytorium.** Tablica w `BOARD.md` czy innym
