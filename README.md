@@ -136,6 +136,65 @@ Claude pokaże które i zapyta — sam ich nie odhacza, żeby oddać zadanie.
 Punkt, do którego przypięto inne zadanie, zostaje nietknięty — odhacza się sam,
 gdy tamto zadanie zostanie zamknięte.
 
+## Komentarze
+
+Komentarze są w TMS główną rozmową o zadaniu — opis mówi, co było do zrobienia na
+starcie, a co ustalono po drodze, wiadomo właśnie z nich. Claude je czyta i streszcza:
+„co pisali w uwagach do 1721", „czemu to wróciło do poprawy". Zdjęcia wklejone do
+komentarza ogląda naprawdę — zrzut z komentarza zwykle niesie sedno sprawy.
+
+Umie też dopisać komentarz i odpowiedzieć na czyjś wpis. Treść zawsze pokazuje przed
+wysłaniem i czeka na „tak", bo komentarz widzą wszyscy przy zadaniu i idzie z niego
+powiadomienie. Komentujesz pod każdym zadaniem, które widzisz, także cudzym.
+
+Raz napisanego komentarza wtyczka nie poprawia ani nie kasuje — porządki w wątku robi
+się w TMS, gdzie widać kontekst.
+
+## Załączniki i zdjęcia
+
+Claude widzi to, co doczepione do zadania: pliki z sekcji zadania i z materiałów do
+weryfikacji, a także zdjęcia wklejone prosto do opisu. Otwiera je naprawdę — mówi, co
+jest na zrzucie, jaki komunikat błędu widać, co pokazuje wykres. Tak samo czyta PDF-y,
+logi, CSV i kod. Worda i Excela nie odczyta i powie to wprost.
+
+W drugą stronę też: plik z dysku — log, zrzut z testu, wygenerowany raport — dołoży do
+zadania, po pokazaniu, co i dokąd wysyła. Zrzutu wklejonego do okna rozmowy przekazać
+nie może; poprosi o zapisanie go na dysku.
+
+## Blokady
+
+Zadanie potrafi czekać na inne. Gdy pytasz „czemu to stoi" albo „co odblokuje 1721",
+Claude powie po ludzku, kto jest po drugiej stronie — na które zadanie się czeka, w
+jakim jest stanie i u kogo — z linkiem do tamtego zadania. Pokaże też odwrotnie: kogo
+to zadanie samo wstrzymuje.
+
+Blokadę można założyć — „to czeka na 1827". Wisi ona na punkcie checklisty i wskazuje
+zadanie, na które ten punkt czeka; po zamknięciu tamtego punkt odhacza się sam.
+Przypięcie wysyła powiadomienie, więc zawsze czeka na Twoje „tak".
+
+## Zgłoszenia błędów
+
+Część zadań powstaje ze zgłoszeń — ktoś zgłosił błąd, ktoś zrobił z tego zadanie.
+Zgłoszenie żyje własnym życiem i ma autora, który czeka na odpowiedź; zamknięcie
+zadania samo z siebie nic z nim nie robi. Claude o tym pamięta: przy zamykaniu zadania
+sprawdzi, czy wisi przy nim zgłoszenie, i zaproponuje odpowiedź zgłaszającemu. Sam go
+nie zamyka — decyzja jest Twoja.
+
+## Zadanie z pull requesta
+
+„Załóż zadanie z tego PR-a" — Claude bierze tytuł i opis prosto z GitHuba, nie z
+pamięci, i składa z tego zwykłą propozycję do zatwierdzenia. Numer PR-a i link
+zostają w zadaniu, żeby prowadziło z powrotem do kodu.
+
+## Przegląd tego, co wisi
+
+Bez klikania po tablicy: „co do mnie przyszło" pokaże zadania świeżo na Ciebie
+przepisane i te, które wróciły do poprawy. „Co wisi w puli", „na czym stanęliśmy w
+projekcie X" — Claude zbierze stan i powie, co zrobione, co w toku, a co czeka i na co.
+
+Umie też pomóc rozdzielić niczyje zadania — pokaże, co leży w puli, z uwzględnieniem
+tego, co i tak jest zablokowane, żeby nikt nie brał zadania, którego dziś nie ruszy.
+
 ## Podobne zadania
 
 Zanim Claude pokaże propozycję nowego zadania, sprawdza w TMS, czy tego samego
