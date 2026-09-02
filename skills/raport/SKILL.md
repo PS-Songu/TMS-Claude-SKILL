@@ -229,13 +229,31 @@ powstanie drugi dokument zamiast nadpisania tego, który już jest.
 Kolejność jest zawsze ta sama: **szukaj po tytule → brak, to załóż → pobierz treść →
 złóż nową → zapisz.** Pominięcie odczytu kasuje wszystko, co w dzienniku było.
 
+**Tytuł do szukania też idzie z pliku, nie w argumencie komendy** — tak samo jak
+przy zakładaniu:
+
 ```bash
+printf '%s' 'Dziennik pracy — Jan Kowalski' > tytul.txt
 curl -s -H "Authorization: Bearer $KLUCZ" --get \
-  --data-urlencode "title=Dziennik pracy — Jan Kowalski" \
+  --data-urlencode "title@tytul.txt" \
   "$BASE/api/v1/integrations/documents"
 ```
 
+`printf '%s'`, a nie `echo` ani heredoc: końcowy znak nowej linii dojechałby jako
+`%0A` i tytuł przestałby pasować co do znaku.
+
+**Why:** polski napis wpisany w argument programu ginie po drodze. Git Bash na
+Windowsie przekodowuje argumenty natywnych programów na CP-1250, zanim curl je
+zobaczy: półpauza „—" robi się bajtem `0x97`, „ó" znakiem zastępczym, „ł" cicho
+degraduje do „l". Do serwera dochodzi „Dziennik pracy ? Jan Kowalski" i nie ma prawa
+się znaleźć. **Skutek jest gorszy niż samo nieznalezienie**: pusta odpowiedź znaczy
+tu „dziennika nie ma", więc każdy raport zakłada kolejny dokument o tej samej nazwie
+zamiast dopisać do istniejącego. Zmierzone: ten sam tytuł z pliku znajduje dokument,
+z argumentu oddaje `null`.
+
 Wraca `{"data":{"document":…}}`, a `null` znaczy, że dziennika jeszcze nie ma.
+**Zanim uznasz, że go nie ma, upewnij się, że tytuł poszedł z pliku** — pomylenie
+tych dwóch rzeczy mnoży dzienniki.
 
 **Gdy dziennik ma już części, piszesz do najwyższej.** Szukaj od góry: `(część 3)`,
 `(część 2)`, na końcu tytuł bez dopisku — i bierz pierwszy, który się znajdzie. Sam
@@ -248,12 +266,12 @@ więc idzie **z pliku**, nie wpisany wprost w komendę (ogonki potrafią dojść
 krzaki, a odpowiedź i tak wygląda na sukces):
 
 ```bash
-cat > /tmp/dziennik.json << 'JSON'
+cat > dziennik.json << 'JSON'
 {"title":"Dziennik pracy — Jan Kowalski"}
 JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/dziennik.json "$BASE/api/v1/integrations/documents"
+  --data-binary @dziennik.json "$BASE/api/v1/integrations/documents"
 ```
 
 Odpowiedź niesie `id` i `slug`. Treść czytasz po numerze:
@@ -316,12 +334,12 @@ Zapis nadpisuje **cały** dokument, więc wysyłasz starą treść ze sklejoną 
 Też z pliku — to polski tekst:
 
 ```bash
-cat > /tmp/tresc.json << 'JSON'
+cat > tresc.json << 'JSON'
 {"content":"<h2>2026-08-31</h2><ul><li>…</li></ul><h2>2026-08-28</h2><ul><li>…</li></ul>"}
 JSON
 curl -s -w '\n%{http_code}' -X PATCH \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/tresc.json "$BASE/api/v1/integrations/documents/12"
+  --data-binary @tresc.json "$BASE/api/v1/integrations/documents/12"
 ```
 
 Po zapisie powiedz, co doszło, i podaj link do dokumentu (`$BASE/dokumenty/<slug>`).

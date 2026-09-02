@@ -53,12 +53,12 @@ w komendę.** Tytuł, opis, materiały, komentarz, punkt checklisty, nazwa proje
 wszystko, co czyta potem człowiek.
 
 ```bash
-cat > /tmp/tresc.json << 'JSON'
+cat > tresc.json << 'JSON'
 {"title":"Poprawić eksport zamówień","description":"<p>Ogonki i „cudzysłowy” dochodzą całe.</p>"}
 JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/tresc.json "$BASE/api/v1/integrations/inbound/claude"
+  --data-binary @tresc.json "$BASE/api/v1/integrations/inbound/claude"
 ```
 
 **Why:** ogonki i cudzysłowy wpisane prosto w komendę potrafią dojść jako krzaki —
@@ -69,6 +69,20 @@ się jako `obs?uga statusu ?Czeka?`.
 
 Wprost w komendzie (`-d '{...}'`) zostają **wyłącznie wartości techniczne**: statusy,
 daty, numery, `true`/`false`. Tam nie ma czego zepsuć.
+
+Dotyczy to tak samo **tekstu w adresie** — `--data-urlencode "title=Dziennik pracy —
+Jan Kowalski"` psuje się dokładnie tak samo jak `-d`, choć nie wygląda na treść.
+Tam, gdzie w argumencie miałby stanąć polski napis, wstawiasz plik: `--data-urlencode
+"title@tytul.txt"`. Plik zapisz **bez końcowego znaku nowej linii** — `printf '%s'`,
+nie `echo` i nie heredoc — bo curl zakodowałby go jako `%0A` i tytuł przestałby
+pasować co do znaku.
+
+### Ścieżki plików
+
+**Żadnego `/tmp`.** Curl na Windowsie to program Windows i bashowego `/tmp` nie widzi:
+kończy się `error encountered when reading a file` albo, gorzej, wysłaniem zera bajtów
+— serwer odpowiada wtedy sukcesem, a treści nie przybyło. Plik zakładasz **ścieżką
+względną**, w katalogu, w którym stoisz, i po wszystkim kasujesz.
 
 Heredoc musi być cytowany (`<< 'JSON'`), inaczej powłoka zje ukośniki i `$`.
 Po wysłaniu **sprawdź w odpowiedzi, jak zapisał się tekst** — jeśli widzisz krzaki
@@ -154,7 +168,7 @@ zakładania zadania.
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/projekt.json \
+  --data-binary @projekt.json \
   "$BASE/api/v1/integrations/projects"
 ```
 
@@ -188,9 +202,14 @@ Odmowy:
 
 Zanim pokażesz propozycję, sprawdź, czy tego samego już ktoś nie zgłosił:
 
+Szukane słowa dobieraj **bez ogonków**, jak niżej — wpisane w argument komendy
+rozsypałyby się po drodze (patrz „Ścieżki plików" i akapit o tekście w adresie),
+a szukanie zwróciłoby pusto i wyglądałoby to na brak duplikatu. Trzon słowa wystarczy:
+„termin" znajdzie i „terminy", i „terminów".
+
 ```bash
 curl -s -H "Authorization: Bearer $KLUCZ" \
-  --get --data-urlencode "query=filtr terminow" --data-urlencode "limit=5" \
+  --get --data-urlencode "query=filtr termin" --data-urlencode "limit=5" \
   "$BASE/api/v1/integrations/tasks"
 ```
 
@@ -299,12 +318,12 @@ Treść idzie z pliku (patrz „Treść ZAWSZE z pliku") — tak samo w każdym 
 niżej, gdzie widzisz `--data-binary`:
 
 ```bash
-cat > /tmp/zadanie.json << 'JSON'
+cat > zadanie.json << 'JSON'
 {"title":"Poprawić eksport zamówień","description":"<p>Co i dlaczego.</p>","priority":"high","projectName":"TMS ✅","poolName":"Zadania / błędy","assigneeName":"Jan Kowalski"}
 JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/zadanie.json \
+  --data-binary @zadanie.json \
   "$BASE/api/v1/integrations/inbound/claude"
 ```
 
@@ -363,7 +382,7 @@ Opis istniejącego zadania poprawiasz **tylko na wyraźną prośbę** („popraw
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/opis.json \
+  --data-binary @opis.json \
   "$BASE/api/v1/integrations/tasks/1766/description"
 ```
 
@@ -461,12 +480,12 @@ Jedyny sygnał pilności z API to `dueDate`.
 Nazwa to treść pisana dla ludzi, więc idzie z pliku (patrz „Treść ZAWSZE z pliku"):
 
 ```bash
-cat > /tmp/nazwa.json << 'JSON'
+cat > nazwa.json << 'JSON'
 {"title":"Poprawić eksport zamówień do BaseLinkera"}
 JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/nazwa.json "$BASE/api/v1/integrations/tasks/1827/fields"
+  --data-binary @nazwa.json "$BASE/api/v1/integrations/tasks/1827/fields"
 ```
 
 Sam termin czy wykonawca (bez nazwy) mogą iść wprost — to wartości techniczne.
@@ -668,7 +687,7 @@ Zdjęcie wklejone do edytora **nie jest załącznikiem zadania**: nie ma go na l
 załączników i nie szukaj go tam. Pobierasz je ścieżką z `path` (doklej `$BASE`):
 
 ```bash
-curl -s -H "Authorization: Bearer $KLUCZ" -o /tmp/zrzut.png \
+curl -s -H "Authorization: Bearer $KLUCZ" -o zrzut.png \
   "$BASE/api/v1/integrations/tasks/1503/images/a7e1a5c1-....png"
 ```
 
@@ -689,7 +708,7 @@ pracy) — zawęzisz przez `?kind=task`. `readable: false` znaczy, że plik prze
 Zawartość — **zapisz do pliku i otwórz go**:
 
 ```bash
-curl -s -H "Authorization: Bearer $KLUCZ" -o /tmp/zrzut.png \
+curl -s -H "Authorization: Bearer $KLUCZ" -o zrzut.png \
   "$BASE/api/v1/integrations/task-attachments/45"
 ```
 
@@ -770,7 +789,7 @@ Streszczaj, nie przepisuj. Człowiek pyta „co tam ustalili", nie „przeczytaj
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/komentarz.json \
+  --data-binary @komentarz.json \
   "$BASE/api/v1/integrations/tasks/1721/comments"
 ```
 
@@ -1016,7 +1035,7 @@ Dopisanie punktów — całą listą naraz, nie po jednym:
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/punkty.json \
+  --data-binary @punkty.json \
   "$BASE/api/v1/integrations/tasks/1721/subtasks"
 ```
 
@@ -1066,7 +1085,7 @@ oddaniem się zatrzymujesz.
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
-  --data-binary @/tmp/materialy.json \
+  --data-binary @materialy.json \
   "$BASE/api/v1/integrations/tasks/1721/materials"
 ```
 
