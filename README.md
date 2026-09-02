@@ -218,9 +218,19 @@ Ciebie; czasem podobne zadanie to celowo osobny temat.
 
 Zamiast klikać po TMS i przepisywać tytuły, wystarczy zapytać — „co dziś zrobione",
 „podsumuj mi ten tydzień", „co Wojtek zrobił wczoraj". Claude zbiera zadania z TMS
-i pisze z nich kilka zdań o tym, co wyszło z rąk — bez numerów, linków i godzin,
-za to z tym, co w tej robocie było istotne. Zapytanie o kilka osób rozdziela na
-osobne akapity, każdy pod imieniem. Po numer konkretnego zadania wystarczy poprosić.
+i układa je **w linijki po projektach** — bez numerów, linków i godzin:
+
+```
+OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
+TMS - podstawowe narzędzia diagnostyczne wprowadzone na produkcję
+```
+
+Chodzi o to, żeby dało się odróżnić jeden dzień od drugiego. Sama nazwa projektu
+opisem roboty nie jest — „OMS: poprawki" i „fixy" codziennie wyglądają tak samo,
+więc każda linijka mówi, co dokładnie się zmieniło. Dwa zdania na projekt
+wystarczą, byle szczegółowe. Zapytanie o kilka osób rozdziela na bloki pod
+imionami. Po numer konkretnego zadania wystarczy poprosić.
 
 Liczy się **wyłącznie robota domknięta** — zadania oddane do weryfikacji albo
 zamknięte w podanym okresie. Zadania założone, zaczęte i stojące w toku do raportu
