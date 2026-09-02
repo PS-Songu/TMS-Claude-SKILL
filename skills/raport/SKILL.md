@@ -94,18 +94,53 @@ okres. Milczenie zostawia człowieka z raportem, który wygląda na komplet.
 
 ## Jak wygląda raport
 
-Raport to kilka zdań prozą — nie lista pozycji. Człowiek ma po nich wiedzieć, co
-wyszło z rąk i co z tego jest ważne, a nie przerabiać wzrokiem dwadzieścia linijek
-z numerami i godzinami.
+Raport dzieli się **na projekty**: nazwa projektu, myślnik, a po nim to, co w nim
+wyszło z rąk. Jedna linijka na projekt, nie na zadanie.
 
-**Bez numerów zadań, bez linków, bez godzin.** Nazwę zadania wplatasz w zdanie tylko
-wtedy, gdy sama coś znaczy; poza tym piszesz, co się zmieniło. Kto chce zajrzeć do
+```
+OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
+TMS - podstawowe narzędzia diagnostyczne wprowadzone na produkcję
+```
+
+Projekt bierzesz z `projectName`. Zadanie bez projektu też dostaje swoją linijkę,
+nazwaną tym, czego dotyczy — „POCZTA", „MAGAZYN" — a nie wrzucone do „pozostałych".
+Kolejność linijek: najpierw projekt, w którym wyszło najwięcej.
+
+Gdy w jednym projekcie wyszły dwie wyraźnie różne rzeczy, **rozbij go na dwie
+linijki** z własnymi nazwami — „TMS" i „SKILL TMS" czytają się lepiej niż jedna
+linijka o wszystkim naraz. Dzielisz tematem, nie pulą; trzy linijki z jednego
+projektu to już siekanie.
+
+**Bez numerów zadań, bez linków, bez godzin.** Nazwę zadania wplatasz tylko wtedy,
+gdy sama coś znaczy; poza tym piszesz, co się zmieniło. Kto chce zajrzeć do
 konkretnego zadania, poprosi — wtedy podasz numer i link.
 
-Rzeczy z jednego wątku łącz w jedno zdanie: osiem wydań wtyczki to nie osiem zdań,
-tylko jedno o tym, co wtyczka przez ten dzień dostała. Treść bierzesz
-z `materialsExcerpt` — to jedyne miejsce, gdzie stoi, co naprawdę zrobione. Zadanie
-bez materiałów wchodzi do raportu samą nazwą; niczego nie dopowiadasz.
+### Konkret zamiast etykiety
+
+**Nazwa projektu to nie jest opis roboty.** „OMS — poprawki", „fixy", „prace nad
+wtyczką" nie mówią nic i codziennie wyglądają tak samo. Każda linijka ma nazwać,
+**co dokładnie** się zmieniło:
+
+```
+źle:     OMS - fixy i poprawki
+dobrze:  OMS - naprawa wygasającej sesji w panelu, poprawiony skrypt sprzątający po deployach
+
+źle:     TMS - prace nad wtyczką Claude'a
+dobrze:  TMS - wtyczka nazywa recenzenta po imieniu i umie go wskazać
+```
+
+Miarą jest to, czy po tygodniu da się odróżnić ten dzień od poprzedniego. Nie da się
+— linijka jest za ogólna i wracasz po szczegół do `materialsExcerpt`.
+
+**Dwa zdania na projekt wystarczą, ale muszą być szczegółowe.** Krótko nie znaczy
+ogólnie: skracasz, wyrzucając wątki poboczne, nie wypłukując treści z tych, które
+zostają.
+
+Rzeczy z jednego wątku łącz: osiem wydań wtyczki to nie osiem pozycji, tylko jedna
+mówiąca, co wtyczka przez ten dzień dostała — po nazwie każdej z tych rzeczy. Treść
+bierzesz z `materialsExcerpt` — to jedyne miejsce, gdzie stoi, co naprawdę zrobione.
+Zadanie bez materiałów wchodzi do raportu samą nazwą; niczego nie dopowiadasz.
 
 Wyróżnij to, co czytający musi wiedzieć: co czeka na weryfikację, co wróciło do
 poprawy (`reworked`), co jest cudzą decyzją, a nie jego robotą. Reszta ma prawo
@@ -113,29 +148,29 @@ zniknąć w zbiorczym zdaniu. Nazwy stanów czytasz ze `status` — `completed`
 (zatwierdzone), `to_verify` (czeka na weryfikację), `rework_needed` (wróciło do
 poprawy); cokolwiek innego nazywasz `statusLabel` tak, jak przyszło.
 
-Piszesz dla zwykłego człowieka, nie dla programisty. **Nazwy plików, funkcji,
-bibliotek i mechanizmów zostawiasz w zadaniu** — w raporcie stoi skutek, który widać
-z zewnątrz. „Kursy walut pokazywały wczorajszy odczyt, teraz są świeże" zamiast
-„godzinny cache w route.ts oddawał przeterminowaną wartość". Materiały bywają pisane
-technicznie, bo pisał je wykonawca dla siebie; Twoim zadaniem jest je przetłumaczyć,
-nie przepisać. Robota, której skutku nie da się opisać po ludzku, wchodzi do raportu
-samą nazwą.
+Piszesz dla zwykłego człowieka, nie dla programisty. **Nazwy plików, funkcji
+i bibliotek zostawiasz w zadaniu** — w raporcie stoi skutek, który widać z zewnątrz.
+„Kursy walut pokazywały wczorajszy odczyt, teraz są świeże" zamiast „godzinny cache
+w route.ts oddawał przeterminowaną wartość" — ale też **nie** zamiast „poprawka
+w WMS". To, czego robota dotyczyła, nazywasz wprost; wycinasz żargon, nie treść.
+Materiały bywają pisane technicznie, bo pisał je wykonawca dla siebie; Twoim
+zadaniem jest je przetłumaczyć, nie przepisać ani nie wypłukać. Robota, której
+skutku nie da się opisać po ludzku, wchodzi do raportu samą nazwą.
 
 Zaczynasz od rzeczy, nie od ramki. „Dzień poszedł prawie w całości na…", „W tym
 tygodniu skupiłeś się na…" — takie otwarcia nic nie niosą i brzmią jak wypracowanie.
 Dnia nie oceniasz i nie dorabiasz mu narracji: piszesz, co doszło i co się zmieniło.
 
-Trzymasz się ogólników. Wątek dostaje jedno zdanie z wyliczeniem tego, co doszło,
-a szczegóły zostają w zadaniu — lepiej, żeby ktoś dopytał, niż żeby przewijał.
-**Dzień to dwa–cztery zdania, tydzień akapit, miesiąc dwa akapity.** Liczby zadań nie
-podajesz — nikt jej nie potrzebuje, a raport przez nią wygląda jak rozliczenie.
+Długość liczysz projektami, nie zdaniami: **dzień to linijka na każdy projekt,
+w którym coś wyszło**, tydzień to samo z grubszym wyliczeniem, miesiąc — akapit na
+projekt. Liczby zadań nie podajesz; nikt jej nie potrzebuje, a raport przez nią
+wygląda jak rozliczenie.
 
 ```
-Wtyczka do TMS urosła o zmianę nazwy i priorytetu zadania, powrót z „Czeka",
-rozdzielanie niczyich zadań i raport wykonanej roboty z zapisem do dziennika;
-po stronie TMS doszły odpowiadające im wejścia. W WMS drobne poprawki — kursy walut,
-flagi przy wersji angielskiej, mapa. W OMS domknięte atrybuty amazonowe oferty,
-a adres zdjęcia produktu czeka na weryfikację.
+OMS - domknięte atrybuty amazonowe oferty, adres zdjęcia produktu czeka na weryfikację
+TMS - wtyczka umie zmienić nazwę i priorytet zadania, wrócić z „Czeka",
+      rozdzielić niczyje zadania i zrobić raport z zapisem do dziennika
+WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej i mapa
 ```
 
 Przy okresie dłuższym niż dzień powiedz w pierwszym zdaniu, jaki zakres wziąłeś —
@@ -147,15 +182,18 @@ zwykle lepiej czyta się okres opisany jako całość.
 ### Kilka osób
 
 Pytanie o kilka osób to osobne zapytanie na osobę — `personId` przyjmuje jedną.
-Każda dostaje własny nagłówek z imieniem, a pod nim swoją prozę. Nie mieszaj ludzi
-w jednym akapicie, nawet gdy robili to samo zadanie.
+Każda dostaje własny nagłówek z imieniem, a pod nim swoje linijki projektów. Nie
+mieszaj ludzi w jednej linijce, nawet gdy robili to samo zadanie.
 
 ```
-Piotr
-Wtyczka do TMS urosła o …
+Wojtek:
+OMS - naprawa wygasającej sesji w panelu, poprawiony skrypt sprzątający po deployach,
+      przeglądy PR-ów
 
-Daniel
-W magazynie poprawione …
+Piotr:
+OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
+TMS - wtyczka nazywa recenzenta po imieniu i umie go wskazać
 ```
 
 Pusty okres kwituj wprost: „W piątek nic nie wyszło Ci z rąk" — bez dorabiania
@@ -228,9 +266,9 @@ W `{"data":{"document":{…}}}` interesuje Cię `content` — cały dokument jak
 
 ### Kształt sekcji
 
-Sekcja dnia to nagłówek z datą, a pod nim **ten sam tekst co w raporcie** — proza
-w `<p>`, bez list, numerów zadań i linków. Znaczniki jak w opisach zadań: `<p>`,
-`<strong>`.
+Sekcja dnia to nagłówek z datą, a pod nim **ten sam tekst co w raporcie** — linijka
+na projekt, bez numerów zadań i linków. Każdy projekt to własne `<p>` z nazwą
+w `<strong>`; list punktowanych nie zakładasz.
 
 **W dzienniku data jest zawsze zapisana jako `<h2>RRRR-MM-DD</h2>`** — niezależnie od
 tego, że raport dla człowieka mówi „Poniedziałek 31 sierpnia". Data w tym formacie
@@ -238,10 +276,12 @@ sortuje się sama i daje się dopasować bez zgadywania.
 
 ```html
 <h2>2026-08-31</h2>
-<p>Wtyczka do TMS urosła o zmianę nazwy i priorytetu zadania, powrót z „Czeka" i raport wykonanej roboty. W WMS drobne poprawki — kursy walut, flagi przy wersji angielskiej, mapa. W OMS domknięte atrybuty amazonowe oferty, a adres zdjęcia produktu czeka na weryfikację.</p>
+<p><strong>OMS</strong> — domknięte atrybuty amazonowe oferty, adres zdjęcia produktu czeka na weryfikację.</p>
+<p><strong>TMS</strong> — wtyczka umie zmienić nazwę i priorytet zadania, wrócić z „Czeka" i zrobić raport z zapisem do dziennika.</p>
+<p><strong>WMS</strong> — kursy walut się odświeżają, poprawione flagi przy wersji angielskiej i mapa.</p>
 ```
 
-Gdy raport obejmował kilka osób, każda dostaje w sekcji własny akapit poprzedzony
+Gdy raport obejmował kilka osób, każda dostaje w sekcji własny blok poprzedzony
 `<p><strong>Imię</strong></p>` — tak jak w rozmowie.
 
 **Raport wielodniowy rozbijasz na dni: każdy dzień okresu dostaje własną sekcję**,
