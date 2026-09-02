@@ -98,7 +98,14 @@ ma to sprawdzić.
 
 Potem się zatrzymuje i pyta, czy oddać. Proponuje właściwe wyjście: „Zakończone",
 gdy zadanie jest Twoje i nikt go nie weryfikuje, „Do weryfikacji", gdy czeka na
-kogoś. Możesz też powiedzieć „jeszcze nie" i zostawić je w trakcie.
+kogoś — i mówi wtedy, na kogo dokładnie, po imieniu. Możesz też powiedzieć
+„jeszcze nie" i zostawić je w trakcie.
+
+Recenzenta da się też wskazać: „niech sprawdzi to Daniel". Claude pokaże skład
+przed zmianą i po niej, bo wskazany recenzent dostaje powiadomienie i zadanie
+ląduje na jego liście do sprawdzenia. Recenzentem może być tylko ktoś z tego
+samego projektu — kogoś z zewnątrz TMS nie przyjmie i Claude powie to wprost,
+zamiast podstawiać kogokolwiek podobnego.
 
 Działa też osobno — „dopisz materiały do 1654" uzupełni dowolne zadanie, w którym
 jesteś wykonawcą, także takie, które ktoś zlecił Ci wcześniej. Przy zadaniach
@@ -113,6 +120,11 @@ propozycję, wysyłać ją i pokazywać Ci odmowę serwera.
 
 Widzisz dokładnie tyle, co w przeglądarce: projekty, w których jesteś, ludzi, których
 możesz ustawić wykonawcą, i akcje, na które pozwala Twoja rola.
+
+Sama widoczność projektu to jeszcze nie prawo zakładania w nim zadań — część
+projektów tylko się widzi. Claude rozróżnia jedno od drugiego i przy braku
+dostępu podaje imię właściciela albo kierownika projektu, żebyś wiedział, kogo
+poprosić.
 
 ## Zakładanie projektów
 

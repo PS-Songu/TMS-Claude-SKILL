@@ -107,17 +107,28 @@ Zwraca `projects`, `pools` (z `projectId`), `users`, `priorities` oraz `me`
 z `canAssignToOthers` i `canCreateProject`. Wszystko przycięte do uprawnień
 właściciela klucza — **czego tam nie ma, tego on nie może**.
 
+Każdy projekt niesie też, kim się w nim jest i kto nim kieruje: `myRole` to rola
+właściciela klucza (`kierownik`, `uczestnik` albo `null`, gdy projekt tylko widzi),
+a `owners` i `managers` to imienne listy z numerami. **Skoro znasz imiona, używaj
+ich** — „projektem kieruje Wojciech Kulus" mówi człowiekowi, kogo zapytać, a „brak
+uprawnień" zostawia go z niczym.
+
 ### Sprawdzenie uprawnień przed działaniem
 
-Człowiek prosi o zadanie w konkretnym projekcie, a tego projektu **nie ma na
-liście**? Powiedz mu to od razu, zanim ułożysz propozycję:
+**Obecność projektu na liście nie znaczy jeszcze, że da się w nim założyć zadanie.**
+Słownik pokazuje też projekty, które właściciel klucza wyłącznie widzi — te mają
+`myRole` na `null` i kończą się odmową `403`. Sprawdź rolę, zanim ułożysz
+propozycję, i przy jej braku od razu nazwij osobę, do której trzeba się zwrócić:
 
 ```
-W TMS nie masz dostępu do projektu WMS — nie założysz tam zadania.
+W projekcie „Amazon Hiszpania" jesteś obserwatorem — nie założysz tam zadania.
+O dostęp poproś Jakuba Szyperkiego, właściciela projektu.
 
-Możesz: poprosić kogoś o dodanie Cię do projektu, wybrać inny
-(TMS ✅, OMS 🚚, …) albo założyć zadanie bez projektu.
+Możesz też wybrać inny projekt (TMS ✅, OMS 🚚, …) albo założyć zadanie bez projektu.
 ```
+
+Projektu, którego w słowniku nie ma w ogóle, właściciel klucza nawet nie widzi —
+powiedz to wprost, zamiast obiecywać dostęp.
 
 Nie próbuj „na wszelki wypadek" — odmowa z serwera po pokazaniu gotowej
 propozycji wygląda, jakby coś się zepsuło, a to zwykły brak uprawnień.
@@ -127,6 +138,8 @@ To samo dotyczy reszty:
   nawet jeśli rozmowa sugeruje kogoś innego. Powiedz o tym, nie zgaduj.
 - `canCreateProject` na `false` → nie proponuj zakładania projektu.
 - Puli nie ma na liście dla tego projektu → nie wpisuj jej.
+- Kogo nie ma w `owners` ani `managers` danego projektu, tego nie mianuj jego
+  kierownikiem — ani w zdaniu do człowieka, ani przy wyborze recenzenta.
 
 Nie zgaduj projektów, pul ani ludzi z pamięci, z rozmowy ani z tego repo. Jedynym
 źródłem prawdy jest słownik pobrany TERAZ.
@@ -371,10 +384,11 @@ Odmowy:
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `404` — zadania nie ma albo jest poza jego zasięgiem.
 
-## Nazwa, priorytet, termin i wykonawca
+## Nazwa, priorytet, termin, wykonawca i recenzenci
 
 „Przesuń 1827 na piątek", „zleć to Wojtkowi", „oddaję to z powrotem do puli",
-„popraw nazwę na …" — jedno wejście, bo w TMS to jedno okno edycji:
+„niech sprawdzi to Daniel", „popraw nazwę na …" — jedno wejście, bo w TMS to
+jedno okno edycji:
 
 ```bash
 curl -s -w '\n%{http_code}' -X POST \
@@ -388,7 +402,40 @@ Do wyboru, po jednym na raz albo razem:
 - `priority` — `today` | `high` | `medium` | `low` | `do_not_touch`,
 - `dueDate` — `"2026-09-04"` ustawia termin, `null` go zdejmuje,
 - `assigneeUserId` — numer osoby ZE SŁOWNIKA (nie imię),
-- `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie.
+- `unassign: true` — oddanie zadania do puli, czyli zdjęcie siebie,
+- `reviewerUserIds` — kto ma sprawdzić robotę; numery osób ZE SŁOWNIKA, **cały
+  skład naraz** (patrz „Recenzenci").
+
+### Recenzenci
+
+Recenzent ocenia oddaną robotę — to do niego trafia zadanie po „do weryfikacji".
+Kto nim jest, mówi `reviewers` z odczytu zadania (`?taskId=`), imieniem i numerem.
+Pusta lista znaczy, że zadanie wróci do zlecającego.
+
+`reviewerUserIds` **podmienia całą listę, nie dopisuje do niej**. Dopisanie kogoś
+zaczyna się więc od odczytu: bierzesz obecny skład, dokładasz nowego i wysyłasz
+razem. Sam nowy numer zdejmuje wszystkich pozostałych — po cichu, bez ostrzeżenia.
+
+```bash
+curl -s -w '\n%{http_code}' -X POST \
+  -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -d '{"reviewerUserIds":[9,27]}' \
+  "$BASE/api/v1/integrations/tasks/1721/fields"
+```
+
+**Pokaż skład przed i po, i poczekaj na „tak".** Recenzent dostaje powiadomienie,
+a zadanie ląduje na jego liście do sprawdzenia:
+
+```
+#1721  sprawdza:      Piotr Stodółka
+       ma sprawdzać:  Piotr Stodółka, Daniel Skrahlenko
+
+Zmieniam? [tak / popraw / anuluj]
+```
+
+Recenzentem może być wyłącznie ktoś z projektu, w którym leży zadanie — kandydatów
+szukaj wśród `owners` i `managers` tego projektu w słowniku, nie wśród wszystkich
+`users`.
 
 ### Priorytety
 
@@ -446,12 +493,16 @@ i dostanie powiadomienie. Oddanie do puli i własny termin — bez ceregieli, to
 odwracalne.
 
 Odmowy:
-- `403 forbidden` — nazwę, priorytet, termin i wykonawcę zmienia ten, kto zlecił (albo
-  lider czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz je oddać do puli,
-  ale nie przestawić terminu ani nazwy — powiedz to i zaproponuj komentarz z prośbą.
+- `403 forbidden` — nazwę, priorytet, termin, wykonawcę i recenzentów zmienia ten,
+  kto zlecił (albo lider czy manager). Jesteś tylko wykonawcą cudzego zadania? Możesz
+  je oddać do puli, ale nie przestawić terminu, nazwy ani recenzenta — powiedz to
+  i zaproponuj komentarz z prośbą.
 - `403 assign_to_others_denied` — właściciel klucza nie ma prawa zlecać innym
   (`canAssignToOthers` w słowniku na `false`). Sprawdź to ZANIM zaproponujesz
   przepisanie, nie po odmowie.
+- `400 reviewer_not_project_member` — wskazana osoba nie należy do projektu, w którym
+  leży zadanie. Nie da się tego obejść wpisaniem kogoś podobnego: pokaż `owners`
+  i `managers` tego projektu ze słownika i zapytaj, kto z nich ma sprawdzać.
 - `409 project_done` — projekt zakończony, zadanie tylko do odczytu.
 - `400` — sprzeczne wejście (naraz wykonawca i oddanie do puli), puste, nazwa
   krótsza niż trzy znaki albo priorytet spoza listy.
@@ -508,7 +559,7 @@ W tym widoku są też **zadania bez wykonawcy** — czyli to, co dopiero czeka n
 podjęcie. Przy zwykłym wyszukiwaniu po słowach ich nie ma.
 
 Każde zadanie niesie `status`, `statusLabel`, `assignees`, `poolName` i `dueDate`.
-**Priorytetu tu nie ma** (patrz „Nazwa, priorytet, termin i wykonawca") — nie
+**Priorytetu tu nie ma** (patrz „Nazwa, priorytet, termin, wykonawca i recenzenci") — nie
 układaj listy „od najpilniejszych" i nie mów, że coś jest pilne, skoro tego nie widzisz.
 Odpowiadaj stanem tablicy, nie surową listą:
 
@@ -591,7 +642,7 @@ Przy każdej grupie dopisz **powód jednym zdaniem** tam, gdzie nie jest oczywis
 łańcuch blokad zawsze, wspólna pula gdy to ona zdecydowała. Linki do zadań pod spodem,
 jak przy zestawieniach.
 
-Po „tak" przypisujesz po kolei (`assigneeUserId`, patrz „Nazwa, priorytet, termin i wykonawca")
+Po „tak" przypisujesz po kolei (`assigneeUserId`, patrz „Nazwa, priorytet, termin, wykonawca i recenzenci")
 i meldujesz jednym zdaniem, co komu przypadło. Odmowa na którymś zadaniu nie
 przerywa reszty — dokończ i powiedz na końcu, co nie weszło i dlaczego.
 
@@ -1023,17 +1074,19 @@ resztę pisz po ludzku.
 
 Po zapisie pokaż krótko, co wpisałeś, i link do zadania.
 
-**Zanim zapytasz o oddanie, odczytaj zadanie** — `canSelfComplete` przychodzi
-wyłącznie z odczytu, samo założenie zwraca goły numer:
+**Zanim zapytasz o oddanie, odczytaj zadanie** — `canSelfComplete` i `reviewers`
+przychodzą wyłącznie z odczytu, samo założenie zwraca goły numer:
 
 ```bash
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?taskId=1721"
 ```
 
-Bez tego kroku nie wiesz, czy zadanie ma w ogóle kogoś, kto je sprawdzi. Zadanie
-własne bez recenzenta oddane „do weryfikacji" ląduje na liście recenzji u tego,
-kto je zlecił — czyli u autora roboty. Kierownik projektu tej listy nie widzi,
-więc zadanie utyka tam, gdzie nikt go nie szuka.
+Bez tego kroku nie wiesz, czy zadanie ma w ogóle kogoś, kto je sprawdzi. `reviewers`
+mówi to imiennie — **i tak właśnie o tym mów**: „pójdzie do Wojtka", nie „pójdzie
+do weryfikacji". Zadanie własne z pustą listą recenzentów oddane „do weryfikacji"
+ląduje na liście recenzji u tego, kto je zlecił — czyli u autora roboty. Kierownik
+projektu tej listy nie widzi, więc zadanie utyka tam, gdzie nikt go nie szuka.
+Zamiast oddawać w próżnię, zaproponuj wskazanie recenzenta (patrz „Recenzenci").
 
 Osobno, na prośbę („dopisz materiały do 1654"): znajdź zadanie jak przy zmianie
 statusu i zapisz. Działa na każdym zadaniu, w którym właściciel klucza jest
@@ -1066,11 +1119,11 @@ Odmowy:
 
 ### Oddanie po materiałach
 
-Tu się zatrzymujesz i pytasz. Wyjście podpowiada `canSelfComplete` odczytany
-przed chwilą — nie zgaduj go i nie pytaj z góry o weryfikację.
+Tu się zatrzymujesz i pytasz. Wyjście podpowiadają `canSelfComplete` i `reviewers`
+odczytane przed chwilą — nie zgaduj ich i nie pytaj z góry o weryfikację.
 
-`true` (zadanie własne, bez cudzego recenzenta) — nikt tego nie sprawdza, więc
-jedyne sensowne wyjście to zamknięcie:
+`true` z pustymi `reviewers` — nikt tego nie sprawdza, więc jedyne sensowne
+wyjście to zamknięcie:
 
 ```
 Zadanie 1721 założone, materiały wpisane.
@@ -1079,10 +1132,18 @@ https://tms.example.pl/tasks/1721
 Zamknąć? [zakończone / jeszcze nie]
 ```
 
-`false` — czeka na kogoś i dopiero wtedy:
+`true`, ale recenzenci są — obie drogi stoją otworem, więc pokaż obie jednym
+pytaniem, z imieniem:
 
 ```
-Oddać? [do weryfikacji / jeszcze nie]
+Zamknąć czy oddać Danielowi do sprawdzenia?
+[zakończone / do weryfikacji / jeszcze nie]
+```
+
+`false` — czeka na kogoś, więc nazwij go po imieniu:
+
+```
+Oddać Wojtkowi? [do weryfikacji / jeszcze nie]
 ```
 
 `jeszcze nie` → zostaje `in_progress`, temat zamknięty.
@@ -1125,7 +1186,7 @@ w poszukiwaniu „tego właściwego" PR-a.
 Nie zatwierdzasz cudzej roboty i nie odsyłasz jej do poprawy — to decyzja
 recenzenta, podejmowana po obejrzeniu zadania w TMS, nie w czacie.
 Nie zmieniasz projektu ani puli istniejącego zadania — to się robi w TMS.
-Nazwę, termin i wykonawcę zmieniasz na prośbę (patrz „Nazwa, priorytet, termin i wykonawca"), nie z własnej
+Nazwę, termin, wykonawcę i recenzentów zmieniasz na prośbę (patrz „Nazwa, priorytet, termin, wykonawca i recenzenci"), nie z własnej
 inicjatywy. Opis poprawiasz wyłącznie na wyraźną prośbę (patrz „Poprawa opisu").
 Nie zakładasz kilku zadań naraz bez osobnego potwierdzenia każdego.
 Nie zamykasz zgłoszeń błędów z własnej inicjatywy — proponujesz, decyduje człowiek.
