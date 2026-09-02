@@ -796,6 +796,18 @@ curl -s -w '\n%{http_code}' -X POST \
 Treść formatujesz tak jak opis (patrz „Formatowanie"). Odpowiedź na czyjś wpis —
 dołóż `replyToId` z odczytu.
 
+**Każdy komentarz pisany Twoją ręką kończy się podpisem** — osobnym akapitem na
+samym dole treści, także w odpowiedzi na czyjś wpis:
+
+```html
+<p>🤖 <em>napisane przez Claude'a</em></p>
+```
+
+Klucz jest osobisty, więc wpis i tak firmuje w TMS jego właściciel. Podpis mówi
+czytającemu, że zdania układał model, a nie człowiek — bez tego wątek wygląda tak,
+jakby wszystko napisali ludzie. Do opisu ani do materiałów go nie dopisujesz: tam
+stoi robota, a nie rozmowa.
+
 **Pokaż treść i poczekaj na „tak".** Komentarz widzą wszyscy przy zadaniu i idzie
 z niego powiadomienie — to nie jest ruch odwracalny po cichu, jak start zadania.
 
