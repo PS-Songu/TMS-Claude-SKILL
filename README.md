@@ -141,6 +141,10 @@ Claude widzi checklistę w zadaniu i potrafi ją prowadzić. Przy zakładaniu za
 które rozkłada się na kilka wyraźnych kroków, wpisze je jako punkty do odhaczenia
 zamiast wyliczenia w opisie — dzięki temu postęp widać na liście zadań.
 
+Gdy bierze się za zadanie, checklistę czyta razem z opisem, z osobnymi opisami
+punktów włącznie. Zakres roboty bardzo często stoi właśnie tam, a opis niesie sam
+powód — zadanie zrobione po samym opisie bywa zrobione w połowie.
+
 Potem wystarczy powiedzieć „odhacz drugi punkt" albo zapytać „co jeszcze zostało
 w 1766". Gdy przy oddawaniu zadania okaże się, że któryś punkt wisi nieodhaczony,
 Claude pokaże które i zapyta — sam ich nie odhacza, żeby oddać zadanie.
