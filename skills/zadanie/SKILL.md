@@ -701,6 +701,8 @@ Kiedy po to sięgasz:
 - **zadanie mówi „jak na zrzucie"** — obejrzyj zrzut, zamiast pytać, co na nim jest,
 - **człowiek prosi wprost** („co jest na tym zdjęciu w 1721", „przeczytaj załącznik"),
 - **bierzesz się za zadanie**, a opis ma obrazy albo pliki — zajrzyj, zanim zaczniesz.
+  Przy tej samej okazji pobierz checklistę (patrz „Podzadania"): opis mówi, po co
+  zadanie powstało, a punkty — co do niego naprawdę należy.
 
 Nie pobieraj wszystkiego hurtem „na wszelki wypadek". Bierz to, co potrzebne do roboty,
 o którą chodzi — każdy plik to koszt i czas.
@@ -1005,7 +1007,9 @@ Podgląd:
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/subtasks"
 ```
 
-Wraca lista `{id, text, description, done, blocked}`.
+Wraca lista `{id, text, description, done, blocked}`. `text` to sama treść punktu,
+`description` — jego własne rozwinięcie, gdy zlecający coś przy nim dopisał. Czytasz
+oba; w `description` siedzą warunki, których w jednej linijce nie dało się zmieścić.
 
 Dopisanie punktów — całą listą naraz, nie po jednym:
 
@@ -1026,6 +1030,13 @@ curl -s -w '\n%{http_code}' -X PATCH \
 ```
 
 Kiedy z tego korzystasz:
+- **Bierzesz się za zadanie** — sprawdzasz checklistę, ZANIM cokolwiek zrobisz, tak
+  samo jak czytasz opis. Nie pytasz o zgodę i nie czekasz, aż ktoś o niej wspomni;
+  to jeden odczyt. Ma punkty — czytasz je wszystkie, `text` i `description`, razem
+  z odhaczonymi: one mówią, co już zrobiono, więc oszczędzają robotę drugi raz.
+  **Zakres zadania bardzo często stoi wyłącznie w punktach**, a opis niesie sam
+  powód — zadanie zrobione po samym opisie bywa zrobione w połowie i widać to
+  dopiero przy oddawaniu, gdy TMS odbija je przez `subtasks_pending`.
 - **Zadanie z kilku wyraźnych kroków** — przy zakładaniu wpisz je jako punkty
   checklisty zamiast wyliczenia w opisie. Wtedy widać postęp na liście zadań.
   Opis zostaje na „po co i dlaczego", punkty niosą „co po kolei".
