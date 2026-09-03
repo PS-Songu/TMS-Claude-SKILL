@@ -97,14 +97,22 @@ okres. Milczenie zostawia człowieka z raportem, który wygląda na komplet.
 
 ## Jak wygląda raport
 
-Raport dzieli się **na projekty**: nazwa projektu, myślnik, a po nim to, co w nim
-wyszło z rąk. Jedna linijka na projekt, nie na zadanie.
+Raport ma stały kształt: **nagłówek z datą, a pod nim punktory — linijka na projekt,
+nie na zadanie**. W linijce nazwa projektu, myślnik, a po nim to, co w nim wyszło
+z rąk.
 
 ```
-OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
-POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
-TMS - podstawowe narzędzia diagnostyczne wprowadzone na produkcję
+RAPORT z dnia 01.09.2026
+
+- OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+- POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
+- TMS - podstawowe narzędzia diagnostyczne wprowadzone na produkcję
 ```
+
+**Datę w nagłówku piszesz po polsku, z kropkami** — `01.09.2026`, nie `2026-09-01`.
+Odwrotnie niż w dzienniku, gdzie zawsze stoi `RRRR-MM-DD`: tam sortuje maszyna, tu
+czyta człowiek. Okres dłuższy niż dzień nazywasz zakresem, w tym samym zapisie:
+`RAPORT za okres 25.08–01.09.2026`.
 
 Projekt bierzesz z `projectName`. Kolejność linijek: najpierw projekt, w którym
 wyszło najwięcej.
@@ -184,10 +192,10 @@ projekt. Liczby zadań nie podajesz; nikt jej nie potrzebuje, a raport przez ni�
 wygląda jak rozliczenie.
 
 ```
-OMS - domknięte atrybuty amazonowe oferty, adres zdjęcia produktu czeka na weryfikację
-TMS - wtyczka umie zmienić nazwę i priorytet zadania, wrócić z „Czeka",
-      rozdzielić niczyje zadania i zrobić raport z zapisem do dziennika
-WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej i mapa
+- OMS - domknięte atrybuty amazonowe oferty, adres zdjęcia produktu czeka na weryfikację
+- TMS - wtyczka umie zmienić nazwę i priorytet zadania, wrócić z „Czeka",
+  rozdzielić niczyje zadania i zrobić raport z zapisem do dziennika
+- WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej i mapa
 ```
 
 Przy okresie dłuższym niż dzień powiedz w pierwszym zdaniu, jaki zakres wziąłeś —
@@ -199,18 +207,21 @@ zwykle lepiej czyta się okres opisany jako całość.
 ### Kilka osób
 
 Pytanie o kilka osób to osobne zapytanie na osobę — `personId` przyjmuje jedną.
-Każda dostaje własny nagłówek z imieniem, a pod nim swoje linijki projektów. Nie
-mieszaj ludzi w jednej linijce, nawet gdy robili to samo zadanie.
+**Każda dostaje własne imię, pogrubione i z dwukropkiem**, a pod nim swoje punktory.
+Nie mieszaj ludzi w jednej linijce, nawet gdy robili to samo zadanie. Przy raporcie
+o jednej osobie imienia nie ma — nagłówek nad własną robotą to zbędny szum.
 
 ```
-Wojtek:
-OMS - naprawa wygasającej sesji w panelu, poprawiony skrypt sprzątający po deployach,
-      przeglądy PR-ów
+RAPORT z dnia 01.09.2026
 
-Piotr:
-OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
-POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
-TMS - wtyczka nazywa recenzenta po imieniu i umie go wskazać
+**Wojtek:**
+- OMS - naprawa wygasającej sesji w panelu, poprawiony skrypt sprzątający po deployach,
+  przeglądy PR-ów
+
+**Piotr:**
+- OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+- POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
+- TMS - wtyczka nazywa recenzenta po imieniu i umie go wskazać
 ```
 
 Pusty okres kwituj wprost: „W piątek nic nie wyszło Ci z rąk" — bez dorabiania
@@ -253,15 +264,17 @@ właścicielowi klucza.
 ### Jak wygląda
 
 ```
-OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
-WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej
-Zadania bez projektu - podstrona z kodami UFI, naprawiona wysyłka ze szkiców w poczcie
+RAPORT z dnia 01.09.2026
+
+- OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+- WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej
+- Zadania bez projektu - podstrona z kodami UFI, naprawiona wysyłka ze szkiców w poczcie
 
 ───────────────
 
-W trakcie
-WMS — miniaturki karteczek olejkowych na sklep niemiecki
-Zadania bez projektu — wtyczka pod pliki feedowe na czeskim sklepie
+**W trakcie**
+- WMS — miniaturki karteczek olejkowych na sklep niemiecki
+- Zadania bez projektu — wtyczka pod pliki feedowe na czeskim sklepie
 ```
 
 **Ziarno jest inne po obu stronach kreski i to jest celowe.** Nad kreską linijka
@@ -270,6 +283,9 @@ w jedno zdanie o tym, co wtyczka dostała. Pod kreską linijka przypada na zadan
 „nad czym siedzę" musi dać się wskazać palcem; nazwa projektu idzie z przodu, a
 zadanie bez projektu — pod „Zadania bez projektu", tak samo jak nad kreską. Numerów
 zadań i linków nie ma po żadnej stronie; kto chce zajrzeć, poprosi.
+
+Przy raporcie o kilku osobach sekcja stoi **raz, na samym dole**, pod wszystkimi
+imionami — dotyczy właściciela klucza, więc pod cudze imię nie wchodzi.
 
 Sekcja jest **przy każdym raporcie, niezależnie od okresu**. Przy pytaniu o okres
 zamknięty („sierpień") pokazuje stan na dziś, nie na koniec tamtego okresu — stan
@@ -291,8 +307,8 @@ Dlatego zadanie starsze niż **7 dni** nie wchodzi do sekcji po cichu. Zostawias
 poza listą i pytasz o nie **pod raportem**, po nazwie i z datą założenia:
 
 ```
-W trakcie
-WMS — miniaturki karteczek olejkowych na sklep niemiecki
+**W trakcie**
+- WMS — miniaturki karteczek olejkowych na sklep niemiecki
 
 Dwa zadania w OMS wiszą od 31 lipca — równoległy odczyt Allegro i pobieranie
 zgłoszeń z poczty. Dopisać je do „W trakcie", czy to martwe wątki?

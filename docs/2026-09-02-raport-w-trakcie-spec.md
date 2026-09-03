@@ -45,22 +45,34 @@ zadanie założone w lipcu, a wzięte wczoraj, wygląda w nim na wiszące od lip
 ## Jak wygląda
 
 ```
-OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
-WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej
-Zadania bez projektu - podstrona z kodami UFI, naprawiona wysyłka ze szkiców w poczcie
+RAPORT z dnia 01.09.2026
+
+**Wojtek:**
+- OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+- WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej
+- Zadania bez projektu - podstrona z kodami UFI, naprawiona wysyłka ze szkiców w poczcie
 
 ───────────────
 
-W trakcie
-WMS — miniaturki karteczek olejkowych na sklep niemiecki
-Bez projektu — wtyczka pod pliki feedowe na czeskim sklepie
+**W trakcie**
+- WMS — miniaturki karteczek olejkowych na sklep niemiecki
+- Zadania bez projektu — wtyczka pod pliki feedowe na czeskim sklepie
 ```
+
+Kształt wzięty z raportu, który ludzie i tak co dzień wklejają ręcznie: nagłówek
+z datą po polsku (`01.09.2026`, przy dłuższym okresie `RAPORT za okres 25.08–01.09.2026`),
+pogrubione imię z dwukropkiem przy kilku osobach, punktory pod spodem. Przy raporcie
+o jednej osobie imienia nie ma. Sekcja „W trakcie" stoi raz, na samym dole — dotyczy
+właściciela klucza, więc pod cudze imię nie wchodzi.
+
+Rubryk „Problemy" i „Focus" z tamtego raportu wtyczka nie wypisuje: w TMS nie ma
+z czego ich wziąć, a puste albo zgadnięte kłamałyby bardziej, niż pomagały. Człowiek
+dopisuje je sobie sam po skopiowaniu.
 
 **Ziarno jest inne po obu stronach kreski i to jest celowe.** Nad kreską linijka
 przypada na projekt, bo streszcza się tam skutki — osiem wydań wtyczki zlepia się
 w jedno zdanie o tym, co wtyczka dostała. Pod kreską linijka przypada na zadanie,
 bo „nad czym siedzę" musi dać się wskazać palcem; nazwa projektu idzie z przodu.
-
 Numerów zadań i linków nie ma po żadnej stronie — kto chce zajrzeć, poprosi.
 
 Sekcja jest przy każdym raporcie, niezależnie od okresu. Przy pytaniu o zamknięty
