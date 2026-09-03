@@ -1,6 +1,6 @@
 ---
 name: raport
-description: Raport wykonanej roboty z firmowego TMS — co komu wyszło z rąk w danym okresie, z możliwością zapisania tego do dziennika pracy w dokumentach TMS. Użyj, gdy użytkownik pyta „co dziś zrobione", „podsumuj mi dzień", „podsumuj tydzień", „co zrobiłem od poniedziałku", „co Wojtek zrobił wczoraj", „raport z sierpnia", „co wyszło mi z rąk w tym tygodniu", albo prosi „zapisz to do dziennika", „dopisz dzisiejszy dzień do dziennika pracy".
+description: Raport wykonanej roboty z firmowego TMS — co komu wyszło z rąk w danym okresie i co zostało w toku, z możliwością zapisania tego do dziennika pracy w dokumentach TMS. Użyj, gdy użytkownik pyta „co dziś zrobione", „podsumuj mi dzień", „podsumuj tydzień", „co zrobiłem od poniedziałku", „co Wojtek zrobił wczoraj", „raport z sierpnia", „co wyszło mi z rąk w tym tygodniu", „co teraz robię", „nad czym siedzę", „co mam w trakcie", albo prosi „zapisz to do dziennika", „dopisz dzisiejszy dzień do dziennika pracy".
 ---
 
 # Raport wykonanej roboty
@@ -26,10 +26,13 @@ inny dzień** — robota oddana w piątek zostaje w piątku, choćby recenzent k
 w poniedziałek. Zadanie z `reworked: true` wracało już do poprawy; powiedz o tym w raporcie,
 bo bez tego dzień wygląda na obfitszy, niż był.
 
-Poza raportem zostają **zadania założone, zaczęte i stojące w toku**. To decyzja, nie
-przeoczenie: raport pokazuje wyniki, nie ruch. Gdy człowiek dziwi się, że dzień
-spędzony na jednej dużej rzeczy jest pusty — powiedz właśnie to, zamiast dosypywać
-mu zadań będących w trakcie.
+Robota **w toku** stoi pod kreską, w osobnej sekcji — patrz „Zadania w toku". Nad
+kreską nie wchodzi: dzień, w którym coś zaczęto, to nie to samo co dzień, w którym
+coś oddano.
+
+Poza raportem zostają **zadania odstawione („Czeka") i nierozpoczęte**. Odstawione
+stoi z powodu, którego lista nie pokazuje; nierozpoczęte to pytanie „co mam do
+zrobienia", na które odpowiada skill `zadanie`.
 
 ## Jak pytasz
 
@@ -103,9 +106,23 @@ POCZTA - wysyłanie wiadomości ze szkicu nie działało, naprawione
 TMS - podstawowe narzędzia diagnostyczne wprowadzone na produkcję
 ```
 
-Projekt bierzesz z `projectName`. Zadanie bez projektu też dostaje swoją linijkę,
-nazwaną tym, czego dotyczy — „POCZTA", „MAGAZYN" — a nie wrzucone do „pozostałych".
-Kolejność linijek: najpierw projekt, w którym wyszło najwięcej.
+Projekt bierzesz z `projectName`. Kolejność linijek: najpierw projekt, w którym
+wyszło najwięcej.
+
+**Zadania z `projectName` równym `null` zbierasz w jedną linijkę „Zadania bez
+projektu", zawsze ostatnią** — także wtedy, gdy jest ich dużo i dotyczą różnych
+rzeczy. Nie wymyślasz im nazwy projektu z tematu: „POCZTA" albo „AROMAHOLIK"
+w dzienniku wygląda jak projekt, którego w TMS nie ma, a zadanie nazwane
+„OMS | Pakowanie paczek" skleiłoby się z prawdziwym OMS-em, do którego nie należy.
+
+Kosz jest tylko nazwą sekcji, nie zwolnieniem z konkretu. **W środku dalej stoi, co
+się zmieniło** — te zadania opisujesz tak samo starannie jak resztę:
+
+```
+źle:     Zadania bez projektu - drobne sprawy
+dobrze:  Zadania bez projektu - podstrona z kodami UFI, naprawiona wysyłka
+                                wiadomości ze szkiców w poczcie
+```
 
 Gdy w jednym projekcie wyszły dwie wyraźnie różne rzeczy, **rozbij go na dwie
 linijki** z własnymi nazwami — „TMS" i „SKILL TMS" czytają się lepiej niż jedna
@@ -209,6 +226,82 @@ To tylko zadania widoczne z Twojego konta — własne, zlecone przez Ciebie
 i te z projektów, w których jesteś. Wojtek mógł zrobić więcej.
 ```
 
+## Zadania w toku
+
+Pod raportem idzie pozioma kreska, a pod nią zadania, przy których człowiek **siedzi
+teraz** — status `in_progress` i nic poza tym. To osobne zapytanie, niezależne od
+okresu raportu:
+
+```bash
+curl -s -H "Authorization: Bearer $KLUCZ" --get \
+  --data-urlencode "view=mine_active" \
+  --data-urlencode "status=in_progress" \
+  --data-urlencode "limit=100" \
+  "$BASE/api/v1/integrations/tasks"
+```
+
+**`personId` działa wyłącznie razem z `doneFrom`** — każdą inną kombinację serwer
+odrzuca komunikatem „personId działa tylko w raporcie". Zadań w toku innej osoby nie
+da się więc pobrać; `view=mine_active` z definicji dotyczy właściciela klucza. Przy
+raporcie o cudzej robocie sekcji nie ma, a jej brak wyjaśniasz zdaniem:
+
+```
+Nad czym Wojtek siedzi teraz, nie widzę — zadania w toku TMS pokazuje tylko
+właścicielowi klucza.
+```
+
+### Jak wygląda
+
+```
+OMS - oferta dostaje w tle dane z Amazona, oferty wyłączone z FBA da się przywrócić
+WMS - kursy walut się odświeżają, poprawione flagi przy wersji angielskiej
+Zadania bez projektu - podstrona z kodami UFI, naprawiona wysyłka ze szkiców w poczcie
+
+───────────────
+
+W trakcie
+WMS — miniaturki karteczek olejkowych na sklep niemiecki
+Zadania bez projektu — wtyczka pod pliki feedowe na czeskim sklepie
+```
+
+**Ziarno jest inne po obu stronach kreski i to jest celowe.** Nad kreską linijka
+przypada na projekt, bo streszczasz tam skutki — osiem wydań wtyczki zlepia się
+w jedno zdanie o tym, co wtyczka dostała. Pod kreską linijka przypada na zadanie, bo
+„nad czym siedzę" musi dać się wskazać palcem; nazwa projektu idzie z przodu, a
+zadanie bez projektu — pod „Zadania bez projektu", tak samo jak nad kreską. Numerów
+zadań i linków nie ma po żadnej stronie; kto chce zajrzeć, poprosi.
+
+Sekcja jest **przy każdym raporcie, niezależnie od okresu**. Przy pytaniu o okres
+zamknięty („sierpień") pokazuje stan na dziś, nie na koniec tamtego okresu — stan
+„w trakcie" nie ma daty. Dopowiedz to jednym zdaniem, żeby nie wyglądała na część
+tamtego miesiąca.
+
+Pustej sekcji nie ma — zamiast niej stoi linijka **„Nic nie masz w trakcie"**. Cisza
+w tym miejscu wygląda jak przeoczenie wtyczki, a to co innego niż brak otwartej
+roboty.
+
+### Zadania, które wiszą
+
+**Nie ma pola „od kiedy w trakcie".** Zadanie niesie `createdAt` i `dueDate`;
+momentu wzięcia się za nie nie niesie żadne. Wiek liczony z `createdAt` jest jedynym
+przybliżeniem, jakie masz — i traktujesz go jak przybliżenie: zadanie założone
+w lipcu, a wzięte wczoraj, wygląda w nim na wiszące od lipca.
+
+Dlatego zadanie starsze niż **7 dni** nie wchodzi do sekcji po cichu. Zostawiasz je
+poza listą i pytasz o nie **pod raportem**, po nazwie i z datą założenia:
+
+```
+W trakcie
+WMS — miniaturki karteczek olejkowych na sklep niemiecki
+
+Dwa zadania w OMS wiszą od 31 lipca — równoległy odczyt Allegro i pobieranie
+zgłoszeń z poczty. Dopisać je do „W trakcie", czy to martwe wątki?
+```
+
+Pytanie idzie **po** raporcie, nie przed: raport ma być gotowy od razu, a nie po
+odpowiedzi na pytanie o rzeczy poboczne. Odpowiedź dotyczy tego jednego raportu
+i nigdzie jej nie zapisujesz — przy następnym pytasz znowu.
+
 ## Dziennik
 
 Zapis do dokumentu w TMS robisz **wyłącznie na prośbę** („zapisz to do dziennika") —
@@ -284,9 +377,14 @@ W `{"data":{"document":{…}}}` interesuje Cię `content` — cały dokument jak
 
 ### Kształt sekcji
 
-Sekcja dnia to nagłówek z datą, a pod nim **ten sam tekst co w raporcie** — linijka
-na projekt, bez numerów zadań i linków. Każdy projekt to własne `<p>` z nazwą
-w `<strong>`; list punktowanych nie zakładasz.
+Sekcja dnia to nagłówek z datą, a pod nim **ten sam tekst co nad kreską
+w raporcie** — linijka na projekt, bez numerów zadań i linków. Każdy projekt to
+własne `<p>` z nazwą w `<strong>`; list punktowanych nie zakładasz.
+
+**Sekcja „W trakcie" do dziennika nie trafia.** Dziennik jest zapisem dnia, czytanym
+miesiącami później — stan chwili wpisany pod datą 31 sierpnia skłamie przy pierwszym
+czytaniu w listopadzie, bo zadanie dawno domknięte albo dawno porzucone będzie tam
+stało jako trwające.
 
 **W dzienniku data jest zawsze zapisana jako `<h2>RRRR-MM-DD</h2>`** — niezależnie od
 tego, że raport dla człowieka mówi „Poniedziałek 31 sierpnia". Data w tym formacie
