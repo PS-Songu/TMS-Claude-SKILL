@@ -11,7 +11,7 @@ człowiek, nie Ty** — Twoja rola to pokazać stan i ścieżkę.
 
 ## Wersja
 
-**Ta instrukcja pochodzi z wydania 0.33.1.** Numer jest wpisany w tym pliku, więc
+**Ta instrukcja pochodzi z wydania 0.33.2.** Numer jest wpisany w tym pliku, więc
 zawsze mówi prawdę o tym, co jest w tej chwili wczytane — nie o tym, co leży
 w repozytorium czy w katalogu wtyczek.
 
@@ -21,9 +21,9 @@ Przy pokazywaniu ustawień wypisz go i sprawdź, czy nie ma nowszego wydania:
 curl -s --max-time 10 https://api.github.com/repos/jf-investing/TMS-Claude-SKILL/releases/latest
 ```
 
-Interesuje Cię `tag_name` (np. `v0.33.1`). Porównaj z numerem wyżej:
-- **te same** → dopisz `Wersja: 0.33.1 (najnowsza)`.
-- **wydanie nowsze** → dopisz `Wersja: 0.33.1 — jest już 0.33.2` i powiedz, jak
+Interesuje Cię `tag_name` (np. `v0.33.2`). Porównaj z numerem wyżej:
+- **te same** → dopisz `Wersja: 0.33.2 (najnowsza)`.
+- **wydanie nowsze** → dopisz `Wersja: 0.33.2 — jest już 0.33.3` i powiedz, jak
   zaktualizować: w zarządzaniu wtyczkami odświeżyć źródło, potem **zamknąć
   i otworzyć edytor** i zacząć nową rozmowę. Sam nowy numer w oknie wtyczek nie
   wystarczy — dopóki tu widnieje stary, wczytana jest stara instrukcja.
@@ -70,7 +70,7 @@ Pokaż stan w takim bloku, a pod nim pełną ścieżkę:
 ```
 Ustawienia TMS
 
-Wersja:     0.33.1 (najnowsza)
+Wersja:     0.33.2 (najnowsza)
 Adres:      https://tms.example.pl
 Klucz:      ustawiony (…3k7f)
 Propozycje: włączone
