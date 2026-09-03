@@ -730,6 +730,14 @@ curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks/1721/
 Wraca `{taskId, title, html, imagesInDescription, images}`. `html` to opis tak, jak
 trzyma go edytor, a `images` to zdjęcia w nim wklejone — każde z `name` i `path`.
 
+**Tytuł jest treścią, nie etykietą** — czytasz go zawsze razem z opisem. Tytuł mieści
+całe polecenie i część zadań ma je właśnie tam, a opis zostaje pusty z założenia:
+„Możliwość oznaczania załączników przez @@" to komplet — jest czasownik, przedmiot
+i sposób. Puste `html` (`null`) nie znaczy więc „brak treści zadania". Najpierw
+sprawdź, czy tytuł sam nie jest pełnym poleceniem: gdy jest — pracujesz na nim
+i nie prosisz o opis. Dopytujesz dopiero wtedy, gdy ani tytuł, ani punkty checklisty
+nie mówią, co zrobić.
+
 Zdjęcie wklejone do edytora **nie jest załącznikiem zadania**: nie ma go na liście
 załączników i nie szukaj go tam. Pobierasz je ścieżką z `path` (doklej `$BASE`):
 
