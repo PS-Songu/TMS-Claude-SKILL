@@ -374,6 +374,11 @@ Plik wygląda tak — każde pole ma nad sobą wyjaśnienie i przykłady:
 zadania zakładają się pod Twoim nazwiskiem. Wtyczka nie wypisuje go w rozmowie,
 pokazuje najwyżej cztery ostatnie znaki.
 
+Do wydania 0.33.1 włącznie było inaczej: wtyczka odczytywała plik ustawień w całości,
+więc klucz lądował w zapisie rozmowy — pliku, który zostaje na dysku po sesji. Jeśli
+używałeś którejś ze starszych wersji, **wydaj nowy klucz** (Ustawienia → Klucze),
+podmień go w `tms.json`, a stary odwołaj.
+
 ### 5. Sprawdzenie
 
 Nowa rozmowa, polecenie `/tms:ustawienia` — powinno pokazać komplet ustawień

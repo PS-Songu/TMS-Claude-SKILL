@@ -23,10 +23,9 @@ Wszystko siedzi w `~/.claude/tms.json` — poza tym repo, klucz nigdy do gita:
 }
 ```
 
-Czytaj przez `cat ~/.claude/tms.json`. Plik bywa zapisany ze znacznikiem BOM na
-początku — pomiń go, to nie błąd. Brak pliku albo brak `apiKey` → powiedz, że skill
-nie jest skonfigurowany, i odeślij do `/tms:ustawienia`. **Nie pytaj o klucz
-w rozmowie i nigdy go nie wypisuj.**
+Brak pliku albo brak `apiKey` → powiedz, że skill nie jest skonfigurowany, i odeślij
+do `/tms:ustawienia`. Ta sama komenda ustawienia pokazuje i objaśnia. Gdyby przyszło
+Ci coś w pliku zmieniać — NIE kasuj komentarzy `//`.
 
 `propose: false` → nie proponuj z własnej inicjatywy, zakładaj tylko na wyraźną
 prośbę. `rules` to prywatne ustalenia tej osoby — trzymaj się ich, chyba że
@@ -40,11 +39,59 @@ Projekt powiedziany wprost w rozmowie ma pierwszeństwo, a nazwy spoza słownika
 nie wpisujesz nawet z mapy — powiedz wtedy, że tego projektu nie ma w Twoim
 zasięgu. Katalog spoza mapy: ustalasz projekt jak dotąd.
 
-Ustawienia pokazuje i objaśnia `/tms:ustawienia`. Plik ma komentarze `//` — pomiń
-je przy czytaniu i NIE kasuj ich, gdyby przyszło Ci coś w nim zmieniać.
+## Odczyt ustawień
 
-W przykładach niżej `$KLUCZ` to `apiKey`, a `$BASE` to `baseUrl`. Podstaw je sam
-przy wywołaniu.
+**Klucza nie wypisujesz — nigdzie.** Wszystko, co wyjdzie z komendy, zostaje
+w transkrypcie rozmowy: pliku na dysku, który po sesji nie znika i którego nikt nie
+czyści. `cat ~/.claude/tms.json` jest wyciekiem, choćby blok pokazany potem
+człowiekowi maskował klucz do czterech znaków — maskowanie dotyczy wyświetlenia,
+nie odczytu.
+
+Klucz bierzesz do zmiennej, w tej samej komendzie co wywołanie. Nic nie drukuje:
+
+```bash
+KLUCZ=$(grep -v '^[[:space:]]*//' ~/.claude/tms.json \
+  | grep -o '"apiKey"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//; s/"$//')
+BASE=$(grep -v '^[[:space:]]*//' ~/.claude/tms.json \
+  | grep -o '"baseUrl"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//; s/"$//')
+curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/dictionary"
+```
+
+W PowerShellu to samo, też bez drukowania:
+
+```powershell
+$cfg   = Get-Content "$env:USERPROFILE\.claude\tms.json" -Raw
+$KLUCZ = [regex]::Match($cfg, '"apiKey"\s*:\s*"([^"]*)"').Groups[1].Value
+$BASE  = [regex]::Match($cfg, '"baseUrl"\s*:\s*"([^"]*)"').Groups[1].Value
+```
+
+Znacznik BOM na początku pliku niczego tu nie psuje — szukasz pola, nie początku
+pliku.
+
+Resztę pól — `propose`, `rules`, `style`, `projectByFolder` — wolno pokazać, więc
+czytasz je bez linii z kluczem:
+
+```bash
+grep -v '^[[:space:]]*//' ~/.claude/tms.json | grep -v '"apiKey"'
+```
+
+Plik zapisany w jednej linii → ta komenda nie pokaże nic. Wtedy bierzesz pola
+pojedynczo, tym samym `grep -o`, co klucz.
+
+**Konfiguracji nie podajesz parserowi JSON-a.** `ConvertFrom-Json`, `jq`,
+`JSON.parse` przy błędzie składni **przedrukowują wejście w treści błędu** — razem
+z kluczem. A o błąd nietrudno: plik ma komentarze `//`, więc naturalnym ruchem jest
+wyciąć je wyrażeniem regularnym, po czym regex zjada `//` w `https://` i parser się
+wywraca. Zdarzyło się naprawdę 2026-09-03 i klucz trzeba było wymienić. Pola
+wyciągasz `grep`em, po jednym, i na tym koniec.
+
+Gdyby klucz mimo wszystko wyszedł na wierzch — błąd parsera, wklejenie w rozmowie,
+własna komenda — **powiedz to wprost**: klucz siedzi w zapisie tej rozmowy, trzeba
+wydać nowy w TMS (Ustawienia → Klucze) i podmienić go w pliku. Nikt się o tym sam
+nie dowie.
+
+Nie pytaj o klucz w rozmowie. W przykładach niżej `$KLUCZ` to `apiKey`, a `$BASE` to
+`baseUrl` — podstawione tak, jak wyżej.
 
 ## Treść ZAWSZE z pliku
 

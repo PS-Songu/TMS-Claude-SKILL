@@ -14,6 +14,17 @@ Te same co przy zadaniach: `~/.claude/tms.json`, a w przykładach niżej `$KLUCZ
 `apiKey`, `$BASE` to `baseUrl`. Brak pliku albo brak klucza → powiedz, że skill nie
 jest skonfigurowany, i odeślij do `/tms:ustawienia`.
 
+**Klucza nie wypisujesz** — bierzesz go do zmiennej i tyle. Ani `cat` na tym pliku,
+ani podanie go parserowi JSON-a; dlaczego i co zamiast tego, mówi skill `zadanie`,
+sekcja „Odczyt ustawień". Stamtąd te dwie linijki:
+
+```bash
+KLUCZ=$(grep -v '^[[:space:]]*//' ~/.claude/tms.json \
+  | grep -o '"apiKey"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//; s/"$//')
+BASE=$(grep -v '^[[:space:]]*//' ~/.claude/tms.json \
+  | grep -o '"baseUrl"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//; s/"$//')
+```
+
 ## Co się liczy
 
 Pozycją raportu jest zadanie, w którym wskazana osoba jest **wykonawcą** i które

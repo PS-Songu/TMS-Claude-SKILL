@@ -11,7 +11,7 @@ człowiek, nie Ty** — Twoja rola to pokazać stan i ścieżkę.
 
 ## Wersja
 
-**Ta instrukcja pochodzi z wydania 0.33.1.** Numer jest wpisany w tym pliku, więc
+**Ta instrukcja pochodzi z wydania 0.33.2.** Numer jest wpisany w tym pliku, więc
 zawsze mówi prawdę o tym, co jest w tej chwili wczytane — nie o tym, co leży
 w repozytorium czy w katalogu wtyczek.
 
@@ -21,9 +21,9 @@ Przy pokazywaniu ustawień wypisz go i sprawdź, czy nie ma nowszego wydania:
 curl -s --max-time 10 https://api.github.com/repos/jf-investing/TMS-Claude-SKILL/releases/latest
 ```
 
-Interesuje Cię `tag_name` (np. `v0.33.1`). Porównaj z numerem wyżej:
-- **te same** → dopisz `Wersja: 0.33.1 (najnowsza)`.
-- **wydanie nowsze** → dopisz `Wersja: 0.33.1 — jest już 0.33.2` i powiedz, jak
+Interesuje Cię `tag_name` (np. `v0.33.2`). Porównaj z numerem wyżej:
+- **te same** → dopisz `Wersja: 0.33.2 (najnowsza)`.
+- **wydanie nowsze** → dopisz `Wersja: 0.33.2 — jest już 0.33.3` i powiedz, jak
   zaktualizować: w zarządzaniu wtyczkami odświeżyć źródło, potem **zamknąć
   i otworzyć edytor** i zacząć nową rozmowę. Sam nowy numer w oknie wtyczek nie
   wystarczy — dopóki tu widnieje stary, wczytana jest stara instrukcja.
@@ -32,21 +32,45 @@ Interesuje Cię `tag_name` (np. `v0.33.1`). Porównaj z numerem wyżej:
 
 ## Pokazanie
 
-Ustal ścieżkę i odczytaj plik:
+Sprawdź, czy plik jest, i odczytaj z niego **pola po jednym — nigdy całość**:
 
 ```bash
-ls ~/.claude/tms.json && cat ~/.claude/tms.json
+ls ~/.claude/tms.json
+grep -v '^[[:space:]]*//' ~/.claude/tms.json | grep -v '"apiKey"'
 ```
 
-Plik bywa zapisany ze znacznikiem BOM na początku i ma komentarze `//` — jedno
-i drugie jest w porządku, po prostu je pomiń przy czytaniu.
+Druga komenda pokazuje wszystko poza kluczem: `baseUrl`, `propose`, `rules`,
+`style`, `projectByFolder`. Do bloku niżej potrzeba jeszcze czterech ostatnich
+znaków klucza — i tylko tyle:
+
+```bash
+grep -o '"apiKey"[[:space:]]*:[[:space:]]*"[^"]*"' ~/.claude/tms.json \
+  | sed 's/.*: *"//; s/"$//' | sed -n 's/.*\(.\{4\}\)$/…\1/p'
+```
+
+Pusto → `Klucz: brak`. Plik zapisany w jednej linii → pierwsza komenda nie pokaże
+nic; wtedy wyciągaj pola pojedynczo, tym samym `grep -o`.
+
+**`cat` na tym pliku jest wyciekiem.** Klucz wypisany raz zostaje w transkrypcie
+rozmowy — pliku, który leży na dysku po sesji i którego nikt nie czyści.
+Maskowanie w bloku niżej dotyczy wyświetlenia, nie odczytu: gdy zrzucisz cały plik,
+pełna wartość jest w zapisie, choćby człowiek zobaczył tylko końcówkę.
+
+**Konfiguracji nie podajesz parserowi JSON-a** — `ConvertFrom-Json`, `jq`,
+`JSON.parse` przy błędzie składni przedrukowują wejście w treści błędu, razem
+z kluczem. Komentarzy `//` nie wycinasz wyrażeniem regularnym: łatwo zjeść przy
+okazji `//` w `https://`, a wtedy parser wywala się i wypisuje wszystko. Zdarzyło
+się naprawdę 2026-09-03. Znacznik BOM na początku pliku `grep`owi nie przeszkadza.
+
+Gdyby klucz mimo wszystko wyszedł na wierzch, **powiedz to wprost**: siedzi
+w zapisie tej rozmowy, trzeba wydać nowy (Ustawienia → Klucze) i podmienić w pliku.
 
 Pokaż stan w takim bloku, a pod nim pełną ścieżkę:
 
 ```
 Ustawienia TMS
 
-Wersja:     0.33.1 (najnowsza)
+Wersja:     0.33.2 (najnowsza)
 Adres:      https://tms.example.pl
 Klucz:      ustawiony (…3k7f)
 Propozycje: włączone
@@ -123,12 +147,19 @@ console.log("utworzono:", p);
 ```
 
 Potem powiedz, gdzie plik leży, i przeprowadź przez uzupełnienie: adres i klucz są
-konieczne, reszta może zostać pusta. Klucz możesz wpisać za człowieka, jeśli wklei
-go w rozmowie — wtedy potwierdź samą końcówką.
+konieczne, reszta może zostać pusta. **Klucz niech wklei prosto do pliku, nie
+w rozmowę** — wklejony w rozmowie zostaje w jej zapisie na dysku. Gdy mimo to
+wklei, wpisz go za niego, potwierdź samą końcówką i powiedz wprost, że ta rozmowa
+ma go w zapisie, więc dobrze byłoby wydać nowy.
 
-Na koniec sprawdź, czy działa:
+Na koniec sprawdź, czy działa. Klucz i adres bierzesz do zmiennych — w jednej
+komendzie z `curl`em, żeby nic nie wyszło na ekran:
 
 ```bash
+KLUCZ=$(grep -v '^[[:space:]]*//' ~/.claude/tms.json \
+  | grep -o '"apiKey"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//; s/"$//')
+BASE=$(grep -v '^[[:space:]]*//' ~/.claude/tms.json \
+  | grep -o '"baseUrl"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*: *"//; s/"$//')
 curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $KLUCZ" \
   "$BASE/api/v1/integrations/dictionary"
 ```
