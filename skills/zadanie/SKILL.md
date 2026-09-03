@@ -984,9 +984,25 @@ Co z czym:
   Zadanie z puli (bez wykonawcy) start bierze na właściciela klucza — tak jak
   „Weź" w oknie zadania. Powiedz to jednym zdaniem: wzięte i w toku. Zadania,
   które ma już wykonawcę, start nie przejmuje.
-- „zrobione", „skończone" → gdy `canSelfComplete` jest `true`, proponuj
-  `completed`. Gdy `false`, zadanie czeka na czyjąś weryfikację — proponuj
-  `to_verify` i powiedz dlaczego. **Czekaj na „tak"**, dopiero potem wysyłaj.
+- „zrobione", „skończone" → `canSelfComplete` mówi tylko, czy zadanie ma nad sobą
+  recenzenta — **nie to, czy serwer pozwoli je zamknąć**. `true` → proponuj
+  `completed`. Przy `false` decyduje rola właściciela klucza w tym projekcie
+  (`myRole` ze słownika):
+  - **kierownik albo właściciel projektu** → obie drogi stoją otworem. Pokaż je
+    jednym pytaniem, z imieniem recenzenta: `[zakończone / do weryfikacji]`.
+    Kierownik zamykający własne zadanie nie ma po co chodzić po zgodę do drugiego
+    kierownika, a wtyczka nie jest od pilnowania tego za TMS.
+  - **uczestnik** → zadanie faktycznie czeka na czyjąś weryfikację; proponuj
+    `to_verify` i powiedz, na kogo. Flagi tu nie obchodzisz i nie próbujesz
+    „na wszelki wypadek".
+
+  **Czekaj na „tak"**, dopiero potem wysyłaj.
+
+  **Why:** `canSelfComplete` liczy się z samej obecności recenzenta i nie patrzy,
+  kim wykonawca jest w projekcie. Zmierzone 2026-09-03: zadanie z `canSelfComplete`
+  na `false` i recenzentem, którego wykonawca jest kierownikiem tego samego
+  projektu, serwer zamyka bez mrugnięcia — `200`, `status: completed`. Wtyczka
+  czytała tę flagę jak zakaz i odsyłała kierownika po zgodę do drugiego kierownika.
 - „to stoi", „czekam na Wojtka", „odstawiam to na potem" → `waiting`. Bez pytania
   o zgodę, to odwracalne. Powiedz, że zadanie odstawione i **na co czeka** —
   sam status tego nie niesie, a bez tego nikt nie wie, kiedy je wznowić.
@@ -1130,6 +1146,9 @@ ląduje na liście recenzji u tego, kto je zlecił — czyli u autora roboty. Ki
 projektu tej listy nie widzi, więc zadanie utyka tam, gdzie nikt go nie szuka.
 Zamiast oddawać w próżnię, zaproponuj wskazanie recenzenta (patrz „Recenzenci").
 
+Samo zadanie nie mówi, kim jesteś w jego projekcie — **rolę bierzesz z `myRole`
+w słowniku** i bez niej nie ułożysz pytania o oddanie (patrz „Zmiana statusu").
+
 Osobno, na prośbę („dopisz materiały do 1654"): znajdź zadanie jak przy zmianie
 statusu i zapisz. Działa na każdym zadaniu, w którym właściciel klucza jest
 wykonawcą — także zleconym mu wcześniej przez kogoś innego.
@@ -1182,10 +1201,21 @@ Zamknąć czy oddać Danielowi do sprawdzenia?
 [zakończone / do weryfikacji / jeszcze nie]
 ```
 
-`false` — czeka na kogoś, więc nazwij go po imieniu:
+`false` — zadanie ma nad sobą recenzenta. Co z tym zrobić, zależy od roli
+właściciela klucza w projekcie (`myRole` ze słownika).
+
+**Uczestnik** — weryfikacja to jedyna droga, więc nazwij człowieka po imieniu:
 
 ```
 Oddać Wojtkowi? [do weryfikacji / jeszcze nie]
+```
+
+**Kierownik albo właściciel projektu** — pytasz tak jak przy `true` z recenzentami,
+bo zamknięcie własnego zadania stoi przed nim otworem mimo tej flagi:
+
+```
+Zamknąć czy oddać Danielowi do sprawdzenia?
+[zakończone / do weryfikacji / jeszcze nie]
 ```
 
 `jeszcze nie` → zostaje `in_progress`, temat zamknięty.
