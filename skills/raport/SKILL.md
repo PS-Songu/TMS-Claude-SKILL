@@ -87,24 +87,37 @@ słowniku:
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/dictionary"
 ```
 
-`personId` to numer osoby z `users`. **Pułapka:** słownik zwraca listę osób tylko
-temu, kto ma prawo przypisywania zadań innym (`canAssignToOthers`). Bez tego prawa
-widać w nim samego siebie — i wtedy pytania o cudzą robotę nie da się obsłużyć.
-Powiedz to wprost i **nie zgaduj numeru**:
+`personId` to numer osoby z `users`. Lista przychodzi **zawsze**, dla każdego klucza
+osobistego — czytanie nazwisk i rozdawanie zadań to dwie różne sprawy, więc
+`canAssignToOthers` rządzi wyłącznie zapisem i na raport o cudzej robocie nie ma
+wpływu.
 
-```
-Nie mam jak rozpoznać, kto to Wojtek — Twój klucz nie widzi listy osób w TMS.
-Mogę podsumować tylko Twoją robotę.
-```
-
-Imienia spoza słownika nie dopasowuj na siłę do podobnego. Dwa trafienia → pokaż oba
-i zapytaj, o kogo chodzi.
+Imienia spoza słownika nie dopasowuj na siłę do podobnego i **nie zgaduj numeru**.
+Dwa trafienia → pokaż oba i zapytaj, o kogo chodzi. Zero trafień → powiedz wprost,
+że takiej osoby w słowniku nie ma.
 
 ### Ucięta lista
 
-`limit` to sufit, nie obietnica. **Gdy wróci dokładnie tyle pozycji, ile wynosi
-`limit`, lista mogła zostać ucięta** — napisz o tym pod raportem i zaproponuj węższy
-okres. Milczenie zostawia człowieka z raportem, który wygląda na komplet.
+**Kompletność czytasz z bloku `page`, nie zgadujesz jej z długości listy.**
+Odpowiedź niesie go obok `tasks`:
+
+```json
+"page": { "total": 359, "limit": 300, "offset": 0, "hasMore": true, "capped": false }
+```
+
+- `hasMore` na `false` → masz komplet, nie ostrzegaj przed niczym.
+- `hasMore` na `true` → za tą stroną coś jeszcze jest. Znasz `total`, więc powiedz
+  wprost, ile: „raport obejmuje 300 z 359 zadań". Resztę dobierz przez `offset`,
+  gdy raport ma być pełny.
+- `capped` na `true` → zapytanie dobiło do stropu i sam `total` jest ucięty. Tu i
+  tylko tu uczciwą odpowiedzią jest „nie wiem, ile tego jest" — napisz to pod
+  raportem i zaproponuj węższy okres.
+
+**Nie ostrzegaj przed ucięciem tylko dlatego, że wynik dobił do `limit`.** Przy
+`limit=300` komplet 300 zadań wygląda tak samo jak pierwsza strona z 359 — ale
+`hasMore` odróżnia jedno od drugiego, więc zgadywanie jest już tylko szkodliwe.
+Milczenie zostawia człowieka z raportem, który wygląda na komplet; ostrzeżenie bez
+powodu każe mu szukać dziury, której nie ma.
 
 ## Jak wygląda raport
 
@@ -340,11 +353,11 @@ cudzego.
 
 **Imienia i nazwiska do tytułu nie ma w `me`** — jest tam sam `userId` (plus
 `canAssignToOthers` i `canCreateProject`). Nazwisko znajdujesz w liście `users`,
-dopasowując po `me.userId`, i przepisujesz dokładnie tak, jak przyszło. Gdy
-dopasowania nie ma — bo klucz bez prawa przypisywania widzi w słowniku samego siebie
-w okrojonej postaci — **zapytaj człowieka, jak ma brzmieć tytuł**. Imienia z rozmowy
-nie bierzesz: dziennik założy się wtedy pod innym tytułem, a przy następnym raporcie
-powstanie drugi dokument zamiast nadpisania tego, który już jest.
+dopasowując po `me.userId`, i przepisujesz dokładnie tak, jak przyszło. Lista
+przychodzi zawsze, więc dopasowanie powinno być. Gdyby mimo to go nie było,
+**zapytaj człowieka, jak ma brzmieć tytuł** — imienia z rozmowy nie bierzesz:
+dziennik założy się wtedy pod innym tytułem, a przy następnym raporcie powstanie
+drugi dokument zamiast nadpisania tego, który już jest.
 
 Kolejność jest zawsze ta sama: **szukaj po tytule → brak, to załóż → pobierz treść →
 złóż nową → zapisz.** Pominięcie odczytu kasuje wszystko, co w dzienniku było.

@@ -133,7 +133,9 @@ względną**, w katalogu, w którym stoisz, i po wszystkim kasujesz.
 
 Heredoc musi być cytowany (`<< 'JSON'`), inaczej powłoka zje ukośniki i `$`.
 Po wysłaniu **sprawdź w odpowiedzi, jak zapisał się tekst** — jeśli widzisz krzaki
-zamiast ogonków, popraw od razu, zamiast meldować gotowe.
+zamiast ogonków, popraw od razu, zamiast meldować gotowe. Przy zakładaniu zadania
+patrzysz na `task.title` z odpowiedzi (patrz „Założenie"); przy zapisach, które
+oddają całe zadanie — na to samo pole w nim.
 
 ## Numer zadania ZAWSZE z linkiem
 
@@ -165,8 +167,11 @@ curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/dictionary"
 ```
 
 Zwraca `projects`, `pools` (z `projectId`), `users`, `priorities` oraz `me`
-z `canAssignToOthers` i `canCreateProject`. Wszystko przycięte do uprawnień
-właściciela klucza — **czego tam nie ma, tego on nie może**.
+z `canAssignToOthers` i `canCreateProject`. `projects` i `pools` są przycięte do
+uprawnień właściciela klucza — **czego tam nie ma, tego on nie może**. `users` to
+wyjątek: lista osób przychodzi zawsze, bo czytanie nazwisk to nie to samo co
+rozdawanie zadań. Prawem do przypisywania rządzi `canAssignToOthers` i dotyczy
+ono wyłącznie zapisu.
 
 Każdy projekt niesie też, kim się w nim jest i kto nim kieruje: `myRole` to rola
 właściciela klucza (`kierownik`, `uczestnik` albo `null`, gdy projekt tylko widzi),
@@ -370,6 +375,7 @@ cat > zadanie.json << 'JSON'
 JSON
 curl -s -w '\n%{http_code}' -X POST \
   -H "Authorization: Bearer $KLUCZ" -H "Content-Type: application/json" \
+  -H "Idempotency-Key: claude-eksport-zamowien-20260904" \
   --data-binary @zadanie.json \
   "$BASE/api/v1/integrations/inbound/claude"
 ```
@@ -378,9 +384,32 @@ Pola: `title`, `description`, `priority` (`today` | `high` | `medium` | `low` |
 `do_not_touch`), `dueDate` (`YYYY-MM-DD`), `projectName`, `poolName`,
 `assigneeName`. Nazwy podawaj dokładnie tak, jak przyszły ze słownika.
 
-Odpowiedź `{"data":{"taskId":123,"created":true}}`. Zgłoś numer i link
-`$BASE/tasks/123` — jednym zdaniem, żeby dało się od razu zajrzeć i poprawić
-na miejscu.
+**Nagłówek `Idempotency-Key` dawaj zawsze**, z wartością własną dla tego jednego
+zakładania — cokolwiek nie powtórzy się przy następnym. Gdy połączenie zerwie się
+po tym, jak serwer już przyjął, ponowienie z tym samym nagłówkiem oddaje `200`,
+`created: false` i numer zadania, które już stoi, zamiast zakładać bliźniaka.
+
+**Why:** sekcja „Duplikaty" pilnuje duplikatów **ludzkich** — tego, że dwie osoby
+zgłaszają to samo. Na duplikat **sieciowy** nie ma tam nic, a curl na Windowsie
+potrafi wyjść timeoutem długo po tym, jak zadanie powstało.
+
+Odpowiedź niesie `taskId`, `created` i **całe założone zadanie**:
+
+```json
+{"data":{"taskId":123,"created":true,"task":{"id":123,"title":"…","priority":"high",
+         "priorityLabel":"Wysoki","reviewers":[{"id":27,"name":"Daniel Skrahlenko"}],
+         "canSelfComplete":false}}}
+```
+
+Czytaj z niej dwie rzeczy, zanim cokolwiek zameldujesz:
+
+- **jak zapisał się tytuł** — `task.title` to jedyne miejsce, w którym sprawdzisz,
+  czy ogonki doszły całe (patrz „Treść ZAWSZE z pliku"),
+- **`reviewers` i `canSelfComplete`** — potrzebne później do pytania o oddanie.
+  **Nie dopytuj o nie osobnym odczytem**, skoro właśnie przyszły.
+
+Zgłoś numer i link `$BASE/tasks/123` — jednym zdaniem, żeby dało się od razu
+zajrzeć i poprawić na miejscu.
 
 ### Zadanie do puli, czyli niczyje
 
@@ -520,9 +549,14 @@ człowieka.
 Znaczy „tego nie ruszamy", cokolwiek akurat głosi jego etykieta. Nie proponuj go
 jako kolejnego kroku w dół; ustawiasz go wtedy, gdy człowiek powie to wprost.
 
-**Priorytet jest do zapisu, nie do odczytu.** Żaden odczyt zadań go nie zwraca —
-ani wyszukiwanie, ani `taskId`, ani widoki. Ustawiony przed chwilą też nie wróci.
-Jedyny sygnał pilności z API to `dueDate`.
+**Priorytet wraca z każdego odczytu** — jako `priority` (klucz) i `priorityLabel`
+(etykieta), tą samą parą co `status` i `statusLabel`. Dostajesz go z wyszukiwania,
+z `taskId`, z widoków i z listy puli. Zapis też jest sprawdzalny: `fields` oddaje
+całe zadanie, więc nową wartość widzisz w odpowiedzi.
+
+Skoro widzisz pilność, **używaj jej** — układaj listy od najpilniejszych i mów
+wprost, co pilne. Etykietę cytuj tę, która przyszła w `priorityLabel`, nie tę
+z pamięci.
 
 Nazwa to treść pisana dla ludzi, więc idzie z pliku (patrz „Treść ZAWSZE z pliku"):
 
@@ -618,16 +652,26 @@ curl -s -H "Authorization: Bearer $KLUCZ"   "$BASE/api/v1/integrations/tasks?pro
 ```
 
 Do wyboru `projectId`, `poolId` (sama pula wystarczy — należy do jednego projektu),
-`status` (kilka po przecinku) i `limit` (do 100). Bez `status` wracają wszystkie,
-także zakończone — to właśnie odpowiedź na „co zrobione, a co czeka".
+`status` (kilka po przecinku), `limit` (do 300) i `offset`. Bez `status` wracają
+wszystkie, także zakończone — to właśnie odpowiedź na „co zrobione, a co czeka".
+
+Odpowiedź niesie obok `tasks` blok `page` — i to z niego czytasz, ile tego jest:
+
+```json
+"page": { "total": 359, "limit": 300, "offset": 0, "hasMore": true, "capped": false }
+```
+
+`total` to liczba trafień, `hasMore` mówi, czy za tą stroną coś jeszcze jest,
+a `capped` na `true` znaczy, że zapytanie dobiło do stropu i sam `total` jest
+ucięty — jedyny przypadek, w którym uczciwą odpowiedzią jest „nie wiem, ile tego
+jest". Nie wnioskuj o kompletności z tego, czy wynik dobił do `limit`: projekt
+z 359 zadaniami przy `limit=300` wygląda wtedy identycznie jak ucięty, a nie jest.
 
 W tym widoku są też **zadania bez wykonawcy** — czyli to, co dopiero czeka na
 podjęcie. Przy zwykłym wyszukiwaniu po słowach ich nie ma.
 
-Każde zadanie niesie `status`, `statusLabel`, `assignees`, `poolName` i `dueDate`.
-**Priorytetu tu nie ma** (patrz „Nazwa, priorytet, termin, wykonawca i recenzenci") — nie
-układaj listy „od najpilniejszych" i nie mów, że coś jest pilne, skoro tego nie widzisz.
-Odpowiadaj stanem tablicy, nie surową listą:
+Każde zadanie niesie `status`, `statusLabel`, `priority`, `priorityLabel`,
+`assignees`, `poolName` i `dueDate`. Odpowiadaj stanem tablicy, nie surową listą:
 
 ```
 Projekt OMS — 14 zadań
@@ -647,10 +691,10 @@ Przy zestawieniu takim jak wyżej linki wypisz pod spodem, po jednym na zadanie 
 w tabelce rozwaliłyby układ, ale zniknąć nie mogą.
 
 Gdy człowiek pyta „co następne", pokaż same czekające i zaproponuj jedno — nie
-wyliczaj wszystkiego. Kolejność bierzesz z terminu i blokad, bo priorytetu
-nie dostajesz; przy wyborze powiedz, czym się kierowałeś, i dodaj, że priorytet
-widzi tylko człowiek w TMS. Pusty wynik znaczy tyle, że w JEGO zasięgu widoczności nic
-tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie widzi.
+wyliczaj wszystkiego. Kolejność bierzesz z priorytetu, terminu i blokad; przy
+wyborze powiedz, czym się kierowałeś. Pusty wynik znaczy tyle, że w JEGO zasięgu
+widoczności nic tam nie ma; nie dopowiadaj, czy zadania nie ma, czy tylko go nie
+widzi.
 
 **Stan czytasz z TMS, nie z pliku w repozytorium.** Tablica w `BOARD.md` czy innym
 pliku bywa nieaktualna i nie jest drugim źródłem prawdy — jeśli rozjeżdża się z TMS,
@@ -1187,14 +1231,16 @@ resztę pisz po ludzku.
 
 Po zapisie pokaż krótko, co wpisałeś, i link do zadania.
 
-**Zanim zapytasz o oddanie, odczytaj zadanie** — `canSelfComplete` i `reviewers`
-przychodzą wyłącznie z odczytu, samo założenie zwraca goły numer:
+**Zanim zapytasz o oddanie, musisz mieć `canSelfComplete` i `reviewers`.** Gdy
+zadanie założyłeś przed chwilą, **oba przyszły w odpowiedzi na założenie** — użyj
+ich i nie pytaj serwera drugi raz o to samo. Odczytu potrzebujesz tylko wtedy, gdy
+zadanie jest cudze albo starsze niż ta rozmowa:
 
 ```bash
 curl -s -H "Authorization: Bearer $KLUCZ" "$BASE/api/v1/integrations/tasks?taskId=1721"
 ```
 
-Bez tego kroku nie wiesz, czy zadanie ma w ogóle kogoś, kto je sprawdzi. `reviewers`
+Bez tych dwóch pól nie wiesz, czy zadanie ma w ogóle kogoś, kto je sprawdzi. `reviewers`
 mówi to imiennie — **i tak właśnie o tym mów**: „pójdzie do Wojtka", nie „pójdzie
 do weryfikacji". Zadanie własne z pustą listą recenzentów oddane „do weryfikacji"
 ląduje na liście recenzji u tego, kto je zlecił — czyli u autora roboty. Kierownik
